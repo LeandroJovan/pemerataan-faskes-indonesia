@@ -1,0 +1,15 @@
+2026-10-29 02:02:27,013 | INFO | Mulai EDA pada 29-10-2026 02:02:27
+2026-10-29 02:02:27,013 | INFO | Indikator kunci per dataset:
+2026-10-29 02:02:27,013 | INFO | - desa (Jumlah Desa/Kelurahan Provinsi): Jumlah Desa
+2026-10-29 02:02:27,013 | INFO | - sarana_desa (Sarana Kesehatan Desa/Kelurahan): Desa/Kelurahan Yang Memiliki Sarana Kesehatan - Rumah Sakit; Desa/Kelurahan Yang Memiliki Sarana Kesehatan - Puskesmas; Desa/Kelurahan Yang Memiliki Sarana Kesehatan - Puskesmas Pembantu; Desa/Kelurahan Yang Memiliki Sarana Kesehatan - Apotek; Desa/Kelurahan Yang Memiliki Sarana Kesehatan - Klinik Utama (Unit); Desa/Kelurahan Yang Memiliki Sarana Kesehatan - Balai Kesehatan; Desa/Kelurahan Yang Memiliki Sarana Kesehatan - Klinik Pratama
+2026-10-29 02:02:27,013 | INFO | - penduduk (Kependudukan Provinsi): Jumlah Penduduk (Ribu); Laju Pertumbuhan Penduduk per Tahun; Persentase Penduduk; Kepadatan Penduduk per km persegi (Km2); Rasio Jenis Kelamin Penduduk
+2026-10-29 02:02:27,013 | INFO | - faskes (RS dan Puskesmas Provinsi): Jumlah Rumah Sakit Umum; Jumlah Rumah Sakit Khusus; Jumlah Puskesmas Rawat Inap; Jumlah Puskesmas Non Rawat Inap
+2026-10-29 02:02:27,045 | INFO | Dataset dimuat: desa=38 baris, sarana_desa=38 baris, penduduk=38 baris, faskes=38 baris
+2026-10-29 02:02:27,061 | INFO | Provinsi yang memiliki data lengkap pada keempat dataset: 38
+2026-10-29 02:02:36,820 | INFO | Peringkat top 10 disimpan: peringkat_provinsi_indikator_kunci.png
+2026-10-29 02:02:36,820 | INFO | Heatmap korelasi segitiga disimpan: korelasi_antarfitur_4_data_agregat.png
+2026-10-29 02:02:36,820 | INFO | Provinsi yang terdeteksi outlier pada indikator gabungan: Aceh; Bali; Banten; DI Yogyakarta; DKI Jakarta; Jawa Barat; Jawa Tengah; Jawa Timur; Kalimantan Timur; Papua Barat Daya; Papua Pegunungan; Papua Selatan; Papua Tengah; Sulawesi Selatan; Sumatera Utara
+2026-10-29 02:02:36,820 | INFO | Distribusi per dataset: distribusi_desa.png, distribusi_sarana_desa.png, distribusi_penduduk.png, distribusi_faskes.png
+2026-10-29 02:02:36,820 | INFO | Outlier vertikal per dataset: outlier_desa.png, outlier_sarana_desa.png, outlier_penduduk.png, outlier_faskes.png
+2026-10-29 02:02:36,821 | INFO | Ringkasan outlier disimpan: deteksi_outlier.csv
+2026-10-29 02:02:36,821 | INFO | EDA selesai
