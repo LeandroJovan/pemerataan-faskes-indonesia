@@ -1,0 +1,493 @@
+
+:root {
+  --dark: #155653;
+  --teal: #258579;
+  --mint: #d9f2eb;
+  --line: #dcebef;
+  --ink: #16495a;
+  --muted: #7894a6;
+  --bg: #f5fafb;
+  --white: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  font-family: 'Inter', sans-serif;
+  color: var(--ink);
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 240px;
+  position: fixed;
+  inset: 0 auto 0 0;
+  background: linear-gradient(180deg, #155a57, #174e50);
+  color: white;
+  padding: 24px 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 4px 8px 35px;
+}
+
+.logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: var(--mint);
+  color: var(--dark);
+  display: grid;
+  place-items: center;
+  font-size: 25px;
+}
+
+.brand strong,
+.brand span {
+  display: block;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+nav {
+  display: grid;
+  gap: 8px;
+}
+
+nav a {
+  padding: 13px 12px;
+  border-radius: 9px;
+  text-decoration: none;
+  color: #e6f4f2;
+  font-size: 12px;
+}
+
+nav a:hover,
+nav a.active {
+  background: #4b9e91;
+}
+
+.side-note {
+  margin-top: auto;
+  font-size: 11px;
+  line-height: 1.6;
+  padding: 12px 8px;
+}
+
+/* MAIN CONTENT */
+main {
+  margin-left: 240px;
+  padding: 26px;
+  width: calc(100% - 240px);
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+header small {
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  color: var(--teal);
+  font-weight: 700;
+}
+
+h1 {
+  font-size: 25px;
+  margin: 8px 0;
+  color: var(--dark);
+}
+
+header p,
+.heading p {
+  font-size: 11px;
+  color: var(--muted);
+  margin: 0;
+}
+
+label {
+  font-size: 11px;
+  display: grid;
+  gap: 7px;
+}
+
+select {
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: white;
+  color: var(--ink);
+  min-width: 180px;
+}
+
+/* KARTU STATISTIK */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 13px;
+  margin-bottom: 14px;
+}
+
+.kpi,
+.panel {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  box-shadow: 0 3px 14px #1e5e6908;
+}
+
+.kpi {
+  padding: 17px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 120px;
+}
+
+.kpi i {
+  font-style: normal;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--mint);
+  color: var(--teal);
+  font-size: 23px;
+  flex-shrink: 0;
+}
+
+.kpi p {
+  font-size: 11px;
+  font-weight: 600;
+  margin: 0 0 11px;
+}
+
+.kpi h2 {
+  font-size: 26px;
+  margin: 0 0 3px;
+  color: var(--dark);
+}
+
+.kpi small {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+/* PANEL DAN GRID */
+.middle {
+  display: grid;
+  grid-template-columns: 1.08fr 1fr;
+  gap: 13px;
+  margin-bottom: 14px;
+}
+
+.bottom {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr 1.05fr;
+  gap: 13px;
+}
+
+.panel {
+  padding: 16px;
+  min-width: 0;
+}
+
+.heading {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.heading b {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: var(--mint);
+  color: var(--teal);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.heading b.coral {
+  background: #ffedeb;
+  color: #dc7774;
+}
+
+h3 {
+  font-size: 13px;
+  margin: 3px 0 5px;
+  color: var(--dark);
+}
+
+/* PETA DAN GRAFIK */
+.map-placeholder {
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: var(--teal);
+  background: #f6fbfa;
+  border-radius: 8px;
+}
+
+.map-placeholder span {
+  font-size: 45px;
+}
+
+.map-placeholder p {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.map-placeholder small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.chart {
+  height: 230px;
+  position: relative;
+}
+
+/* INDIKATOR PENYAKIT */
+.metrics {
+  display: grid;
+  gap: 7px;
+}
+
+.metrics > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: #f8fbfc;
+  border-radius: 7px;
+  padding: 9px 8px;
+  font-size: 10px;
+}
+
+.metrics strong,
+.staff strong {
+  color: var(--teal);
+}
+
+/* AKSES LAYANAN */
+.access {
+  display: grid;
+  gap: 12px;
+}
+
+.access div {
+  padding: 10px;
+  background: #f4faf8;
+  border-radius: 7px;
+  font-size: 10px;
+  color: #557b8b;
+}
+
+/* TENAGA KESEHATAN */
+.staff {
+  display: grid;
+}
+
+.staff div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 1px;
+  border-bottom: 1px solid #edf3f5;
+  font-size: 10px;
+  color: #557b8b;
+}
+
+footer {
+  font-size: 10px;
+  color: #91a7b2;
+  padding: 18px 2px 0;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1200px) {
+  .sidebar {
+    width: 205px;
+  }
+
+  main {
+    margin-left: 205px;
+    width: calc(100% - 205px);
+    padding: 20px;
+  }
+
+  .kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .bottom {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .bottom .panel:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 780px) {
+  body {
+    display: block;
+  }
+
+  .sidebar {
+    position: static;
+    width: 100%;
+    padding: 12px;
+  }
+
+  .brand {
+    padding: 3px 6px 12px;
+  }
+
+  nav {
+    display: flex;
+    overflow-x: auto;
+  }
+
+  nav a {
+    white-space: nowrap;
+  }
+
+  .side-note {
+    display: none;
+  }
+
+  main {
+    margin: 0;
+    width: 100%;
+    padding: 15px;
+  }
+
+  header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .middle,
+  .bottom {
+    grid-template-columns: 1fr;
+  }
+
+  .bottom .panel:last-child {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 460px) {
+  .kpis {
+    grid-template-columns: 1fr;
+  }
+
+  h1 {
+    font-size: 21px;
+  }
+
+  .chart {
+    height: 200px;
+  }
+}
+
+
+/* Navigasi sidebar */
+#sidebarNav {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+#sidebarNav .nav-link {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px 16px;
+  min-height: 48px;
+
+  color: #e6f4f2;
+  text-decoration: none;
+  font-size: 12px;
+
+  border-radius: 18px;
+  background: transparent;
+
+  transition:
+    background-color 0.25s ease,
+    border-radius 0.25s ease,
+    transform 0.25s ease;
+}
+
+#sidebarNav .nav-link span {
+  width: 23px;
+  text-align: center;
+  font-size: 19px;
+  flex-shrink: 0;
+}
+
+#sidebarNav .nav-link:hover {
+  background: rgba(111, 193, 177, 0.25);
+  border-radius: 18px;
+}
+
+#sidebarNav .nav-link.active {
+  background: #4b9e91;
+  color: #ffffff;
+  border-radius: 18px 18px 18px 18px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+#sidebarNav .nav-link.active span {
+  color: #ffffff;
+}
+
+/* Jarak saat menuju bagian yang dipilih */
+#beranda,
+#fasilitas,
+#jaminan,
+#penyakit,
+#akses,
+#tenaga {
+  scroll-margin-top: 24px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Navigasi pada layar kecil */
+@media (max-width: 780px) {
+  #sidebarNav {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+
+  #sidebarNav .nav-link {
+    flex-shrink: 0;
+    border-radius: 16px;
+  }
+}
