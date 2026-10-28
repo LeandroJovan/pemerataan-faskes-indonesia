@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Kesehatan Indonesia</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">✚</div>
+      <div>
+        <strong>Dashboard</strong>
+        <span>Kesehatan Indonesia</span>
+      </div>
+    </div>
+
+    <nav id="sidebarNav">
+        <a href="#beranda" class="nav-link active" data-target="beranda">
+            <span>⌂</span> Beranda
+        </a>
+        <a href="#fasilitas" class="nav-link" data-target="fasilitas">
+            <span>▦</span> Fasilitas Kesehatan
+        </a>
+        <a href="#jaminan" class="nav-link" data-target="jaminan">
+            <span>♡</span> Jaminan Kesehatan
+        </a>
+        <a href="#penyakit" class="nav-link" data-target="penyakit">
+            <span>✚</span> Indikator Penyakit
+        </a>
+        <a href="#akses" class="nav-link" data-target="akses">
+            <span>↗</span> Akses Layanan
+        </a>
+        <a href="#tenaga" class="nav-link" data-target="tenaga">
+            <span>♙</span> Tenaga Kesehatan
+        </a>
+    </nav>
+
+    <div class="side-note">
+      ♡ Data untuk Indonesia yang lebih sehat
+    </div>
+  </aside>
+
+  <main id="beranda">
+
+    <header>
+      <div>
+        <small>RINGKASAN DATA KESEHATAN</small>
+        <h1>Dashboard Kesehatan Indonesia</h1>
+        <p>Ringkasan indikator kesehatan antarprovinsi.</p>
+      </div>
+
+      <label>
+        Provinsi
+        <select id="provinceFilter">
+          <option value="all">Seluruh Provinsi</option>
+          <option value="Aceh">Aceh</option>
+          <option value="Sumatera Utara">Sumatera Utara</option>
+        </select>
+      </label>
+    </header>
+
+    <!-- RINGKASAN FASILITAS -->
+    <section class="kpis" id="fasilitas">
+
+      <article class="kpi">
+        <i>▦</i>
+        <div>
+          <p>Rumah Sakit Umum</p>
+          <h2 id="rsu">—</h2>
+          <small>unit</small>
+        </div>
+      </article>
+
+      <article class="kpi">
+        <i>✚</i>
+        <div>
+          <p>Rumah Sakit Khusus</p>
+          <h2 id="rsk">—</h2>
+          <small>unit</small>
+        </div>
+      </article>
+
+      <article class="kpi">
+        <i>⌂</i>
+        <div>
+          <p>Puskesmas Rawat Inap</p>
+          <h2 id="rawat">—</h2>
+          <small>unit</small>
+        </div>
+      </article>
+
+      <article class="kpi">
+        <i>⌂</i>
+        <div>
+          <p>Puskesmas Non-Rawat Inap</p>
+          <h2 id="nonrawat">—</h2>
+          <small>unit</small>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- FASILITAS DAN JAMINAN -->
+    <section class="middle">
+
+      <article class="panel">
+        <div class="heading">
+          <b>▰</b>
+          <div>
+            <h3>Sebaran Fasilitas Kesehatan</h3>
+            <p>Ilustrasi wilayah Indonesia</p>
+          </div>
+        </div>
+
+        <div class="map-placeholder">
+          <span>🗺️</span>
+          <p>Sebaran fasilitas per provinsi</p>
+          <small>Visualisasi peta dapat ditambahkan kemudian.</small>
+        </div>
+      </article>
+
+      <article class="panel" id="jaminan">
+        <div class="heading">
+          <b>♡</b>
+          <div>
+            <h3>Cakupan Jaminan Kesehatan</h3>
+            <p>Persentase penduduk berdasarkan jenis jaminan</p>
+          </div>
+        </div>
+
+        <div class="chart">
+          <canvas id="insuranceChart"></canvas>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- INDIKATOR PENYAKIT -->
+    <section class="bottom">
+
+      <article class="panel" id="penyakit">
+        <div class="heading">
+          <b class="coral">✚</b>
+          <div>
+            <h3>Indikator Penyakit</h3>
+            <p>Ringkasan indikator penyakit</p>
+          </div>
+        </div>
+
+        <div class="metrics">
+          <div><span>Penemuan kasus TBC</span><strong id="tb">—</strong></div>
+          <div><span>Keberhasilan pengobatan TBC</span><strong id="tbs">—</strong></div>
+          <div><span>Kasus baru HIV/AIDS</span><strong id="hiv">—</strong></div>
+          <div><span>Penemuan kusta per 100.000 penduduk</span><strong id="kusta">—</strong></div>
+          <div><span>Kesakitan malaria per 1.000 penduduk</span><strong id="malaria">—</strong></div>
+          <div><span>Kesakitan DBD per 100.000 penduduk</span><strong id="dbd">—</strong></div>
+        </div>
+      </article>
+
+      <!-- AKSES LAYANAN -->
+      <article class="panel" id="akses">
+        <div class="heading">
+          <b>↗</b>
+          <div>
+            <h3>Akses Layanan Kesehatan</h3>
+            <p>Alasan tidak berobat jalan</p>
+          </div>
+        </div>
+
+        <div class="access">
+          <div>Tidak punya biaya berobat</div>
+          <div>Tidak ada biaya transportasi</div>
+          <div>Tidak ada sarana transportasi</div>
+          <div>Waktu tunggu pelayanan lama</div>
+          <div>Mengobati sendiri</div>
+          <div>Tidak ada yang mendampingi</div>
+          <div>Merasa tidak perlu</div>
+          <div>Lainnya</div>
+        </div>
+      </article>
+
+      <!-- TENAGA KESEHATAN -->
+      <article class="panel" id="tenaga">
+        <div class="heading">
+          <b>♙</b>
+          <div>
+            <h3>Tenaga Kesehatan</h3>
+            <p>Jumlah berdasarkan kategori tenaga</p>
+          </div>
+        </div>
+
+        <div class="staff">
+          <div>Tenaga medis <strong>—</strong></div>
+          <div>Tenaga kebidanan <strong>—</strong></div>
+          <div>Tenaga kefarmasian <strong>—</strong></div>
+          <div>Tenaga kesehatan masyarakat <strong>—</strong></div>
+          <div>Tenaga kesehatan lingkungan <strong>—</strong></div>
+          <div>Tenaga gizi <strong>—</strong></div>
+          <div>Psikologi klinis <strong>—</strong></div>
+          <div>Keterapian fisik <strong>—</strong></div>
+          <div>Keteknisan medis <strong>—</strong></div>
+          <div>Teknik biomedika <strong>—</strong></div>
+          <div>Kesehatan tradisional <strong>—</strong></div>
+        </div>
+      </article>
+
+    </section>
+
+    <footer>
+      Dashboard Kesehatan Indonesia · Visualisasi data kesehatan
+    </footer>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
