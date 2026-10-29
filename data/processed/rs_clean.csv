@@ -1,0 +1,39 @@
+Provinsi,rsu,rsk,pkm_ri,pkm_nri,rsk_missing,rsk_est
+Aceh,77,9.0,174,192,0,9.0
+Sumatera Utara,185,23.0,178,441,0,23.0
+Sumatera Barat,53,30.0,108,172,0,30.0
+Riau,67,14.0,120,122,0,14.0
+Jambi,42,3.0,98,110,0,3.0
+Sumatera Selatan,72,17.0,110,244,0,17.0
+Bengkulu,25,3.0,52,127,0,3.0
+Lampung,64,19.0,162,160,0,19.0
+Kepulauan Bangka Belitung,25,4.0,25,39,0,4.0
+Kepulauan Riau,34,5.0,28,68,0,5.0
+DKI Jakarta,142,52.0,2,42,0,52.0
+Jawa Barat,382,54.0,279,827,0,54.0
+Jawa Tengah,317,52.0,369,512,0,52.0
+DI Yogyakarta,64,16.0,47,74,0,16.0
+Jawa Timur,358,84.0,622,354,0,84.0
+Banten,111,25.0,63,190,0,25.0
+Bali,66,16.0,38,82,0,16.0
+Nusa Tenggara Barat,39,7.0,154,23,0,7.0
+Nusa Tenggara Timur,64,3.0,186,255,0,3.0
+Kalimantan Barat,51,8.0,140,112,0,8.0
+Kalimantan Tengah,31,3.0,85,120,0,3.0
+Kalimantan Selatan,44,8.0,52,190,0,8.0
+Kalimantan Timur,54,12.0,91,97,0,12.0
+Kalimantan Utara,17,,20,38,1,0.0
+Sulawesi Utara,52,8.0,99,104,0,8.0
+Sulawesi Tengah,37,4.0,125,94,0,4.0
+Sulawesi Selatan,100,24.0,306,168,0,24.0
+Sulawesi Tenggara,39,4.0,109,199,0,4.0
+Gorontalo,21,1.0,24,71,0,1.0
+Sulawesi Barat,14,2.0,59,39,0,2.0
+Maluku,28,1.0,94,147,0,1.0
+Maluku Utara,21,2.0,57,93,0,2.0
+Papua Barat,14,,26,55,1,0.0
+Papua Barat Daya,12,,18,101,1,0.0
+Papua,18,1.0,44,79,0,1.0
+Papua Selatan,8,,59,26,1,0.0
+Papua Tengah,14,,29,98,1,0.0
+Papua Pegunungan,8,,23,160,1,0.0
