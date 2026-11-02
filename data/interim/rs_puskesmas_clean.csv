@@ -1,0 +1,39 @@
+provinsi,jumlah_rs_umum,jumlah_rs_khusus,jumlah_rs_khusus_imputed,rs_khusus_is_missing,total_rs,total_rs_est,jumlah_puskesmas_rawat_inap,jumlah_puskesmas_non_rawat_inap,total_puskesmas
+Aceh,77,9.0,9,False,86.0,86,174,192,366
+Bali,66,16.0,16,False,82.0,82,38,82,120
+Banten,111,25.0,25,False,136.0,136,63,190,253
+Bengkulu,25,3.0,3,False,28.0,28,52,127,179
+DI Yogyakarta,64,16.0,16,False,80.0,80,47,74,121
+DKI Jakarta,142,52.0,52,False,194.0,194,2,42,44
+Gorontalo,21,1.0,1,False,22.0,22,24,71,95
+Jambi,42,3.0,3,False,45.0,45,98,110,208
+Jawa Barat,382,54.0,54,False,436.0,436,279,827,1106
+Jawa Tengah,317,52.0,52,False,369.0,369,369,512,881
+Jawa Timur,358,84.0,84,False,442.0,442,622,354,976
+Kalimantan Barat,51,8.0,8,False,59.0,59,140,112,252
+Kalimantan Selatan,44,8.0,8,False,52.0,52,52,190,242
+Kalimantan Tengah,31,3.0,3,False,34.0,34,85,120,205
+Kalimantan Timur,54,12.0,12,False,66.0,66,91,97,188
+Kalimantan Utara,17,,0,True,,17,20,38,58
+Kepulauan Bangka Belitung,25,4.0,4,False,29.0,29,25,39,64
+Kepulauan Riau,34,5.0,5,False,39.0,39,28,68,96
+Lampung,64,19.0,19,False,83.0,83,162,160,322
+Maluku,28,1.0,1,False,29.0,29,94,147,241
+Maluku Utara,21,2.0,2,False,23.0,23,57,93,150
+Nusa Tenggara Barat,39,7.0,7,False,46.0,46,154,23,177
+Nusa Tenggara Timur,64,3.0,3,False,67.0,67,186,255,441
+Papua,18,1.0,1,False,19.0,19,44,79,123
+Papua Barat,14,,0,True,,14,26,55,81
+Papua Barat Daya,12,,0,True,,12,18,101,119
+Papua Pegunungan,8,,0,True,,8,23,160,183
+Papua Selatan,8,,0,True,,8,59,26,85
+Papua Tengah,14,,0,True,,14,29,98,127
+Riau,67,14.0,14,False,81.0,81,120,122,242
+Sulawesi Barat,14,2.0,2,False,16.0,16,59,39,98
+Sulawesi Selatan,100,24.0,24,False,124.0,124,306,168,474
+Sulawesi Tengah,37,4.0,4,False,41.0,41,125,94,219
+Sulawesi Tenggara,39,4.0,4,False,43.0,43,109,199,308
+Sulawesi Utara,52,8.0,8,False,60.0,60,99,104,203
+Sumatera Barat,53,30.0,30,False,83.0,83,108,172,280
+Sumatera Selatan,72,17.0,17,False,89.0,89,110,244,354
+Sumatera Utara,185,23.0,23,False,208.0,208,178,441,619

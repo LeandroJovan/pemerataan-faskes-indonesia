@@ -53,9 +53,8 @@ venv.bak/
 Thumbs.db
 desktop.ini
 
-# Intermediate and temporary data (keep folder structure via .gitkeep)
-data/interim/*
-!data/interim/.gitkeep
+# Intermediate and temporary data
+# data/interim/*
 
 # Large output files (keep directory structure)
 outputs/figures/*
