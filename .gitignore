@@ -69,3 +69,6 @@ outputs/maps/*
 .coverage
 htmlcov/
 
+
+# Local progress notes
+PROGRESS_DASHBOARD.md

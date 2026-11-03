@@ -1,224 +1,290 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Kesehatan Indonesia</title>
+  <title>Pemerataan Faskes Indonesia</title>
 
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
   <aside class="sidebar">
     <div class="brand">
-      <div class="logo">✚</div>
+      <div class="logo">FK</div>
       <div>
-        <strong>Dashboard</strong>
-        <span>Kesehatan Indonesia</span>
+        <strong>Peta Sehat</strong>
+        <span>Pemerataan Faskes</span>
       </div>
     </div>
 
     <nav id="sidebarNav">
-        <a href="#beranda" class="nav-link active" data-target="beranda">
-            <span>⌂</span> Beranda
-        </a>
-        <a href="#fasilitas" class="nav-link" data-target="fasilitas">
-            <span>▦</span> Fasilitas Kesehatan
-        </a>
-        <a href="#jaminan" class="nav-link" data-target="jaminan">
-            <span>♡</span> Jaminan Kesehatan
-        </a>
-        <a href="#penyakit" class="nav-link" data-target="penyakit">
-            <span>✚</span> Indikator Penyakit
-        </a>
-        <a href="#akses" class="nav-link" data-target="akses">
-            <span>↗</span> Akses Layanan
-        </a>
-        <a href="#tenaga" class="nav-link" data-target="tenaga">
-            <span>♙</span> Tenaga Kesehatan
-        </a>
+      <a href="#ringkasan" class="nav-link active" data-target="ringkasan">Ringkasan</a>
+      <a href="#peta" class="nav-link" data-target="peta">Peta &amp; Rasio</a>
+      <a href="#pola" class="nav-link" data-target="pola">Pola Pemerataan</a>
+      <a href="#cakupan" class="nav-link" data-target="cakupan">Cakupan Desa</a>
+      <a href="#prioritas" class="nav-link" data-target="prioritas">Prioritas</a>
+      <a href="#catatan" class="nav-link" data-target="catatan">Catatan Data</a>
     </nav>
 
     <div class="side-note">
-      ♡ Data untuk Indonesia yang lebih sehat
+      <span class="pulse"></span>
+      38 provinsi · data BPS &amp; Kemenkes
     </div>
   </aside>
 
-  <main id="beranda">
-
-    <header>
+  <main>
+    <header id="ringkasan">
       <div>
-        <small>RINGKASAN DATA KESEHATAN</small>
-        <h1>Dashboard Kesehatan Indonesia</h1>
-        <p>Ringkasan indikator kesehatan antarprovinsi.</p>
+        <small>PEMERATAAN FASILITAS KESEHATAN</small>
+        <h1>Sudah rata atau belum?</h1>
+        <p>Bandingkan jumlah, rasio per kapita, luas wilayah, dan cakupan desa.</p>
       </div>
 
-      <label>
-        Provinsi
-        <select id="provinceFilter">
-          <option value="all">Seluruh Provinsi</option>
-          <option value="Aceh">Aceh</option>
-          <option value="Sumatera Utara">Sumatera Utara</option>
-        </select>
-      </label>
+      <div class="header-controls">
+        <label>
+          Provinsi
+          <select id="provinceFilter">
+            <option value="all">Seluruh Provinsi</option>
+          </select>
+        </label>
+        <div class="year-badge">Penduduk 2026<br><span>Faskes 2025</span></div>
+      </div>
     </header>
 
-    <!-- RINGKASAN FASILITAS -->
-    <section class="kpis" id="fasilitas">
-
+    <section class="kpis" aria-label="Indikator utama">
       <article class="kpi">
-        <i>▦</i>
-        <div>
-          <p>Rumah Sakit Umum</p>
-          <h2 id="rsu">—</h2>
-          <small>unit</small>
-        </div>
+        <span class="kpi-label">Rumah Sakit</span>
+        <strong id="kpiRs">—</strong>
+        <small id="kpiRsSub">RSU + RS Khusus</small>
       </article>
-
       <article class="kpi">
-        <i>✚</i>
-        <div>
-          <p>Rumah Sakit Khusus</p>
-          <h2 id="rsk">—</h2>
-          <small>unit</small>
-        </div>
+        <span class="kpi-label">Puskesmas</span>
+        <strong id="kpiPkm">—</strong>
+        <small id="kpiPkmSub">Rawat inap + non-rawat inap</small>
       </article>
-
       <article class="kpi">
-        <i>⌂</i>
-        <div>
-          <p>Puskesmas Rawat Inap</p>
-          <h2 id="rawat">—</h2>
-          <small>unit</small>
-        </div>
+        <span class="kpi-label">Desa tanpa puskesmas</span>
+        <strong id="kpiVillages">—</strong>
+        <small id="kpiVillagesSub">dari total desa/kelurahan</small>
       </article>
-
-      <article class="kpi">
-        <i>⌂</i>
-        <div>
-          <p>Puskesmas Non-Rawat Inap</p>
-          <h2 id="nonrawat">—</h2>
-          <small>unit</small>
-        </div>
+      <article class="kpi highlight">
+        <span class="kpi-label">Status standar 1 : 30.000</span>
+        <strong id="kpiStandard">—</strong>
+        <small id="kpiStandardSub">provinsi memenuhi</small>
       </article>
-
     </section>
 
-    <!-- FASILITAS DAN JAMINAN -->
-    <section class="middle">
+    <section class="insight-strip">
+      <div>
+        <b>87,84%</b>
+        <span>desa tidak memiliki puskesmas</span>
+      </div>
+      <div>
+        <b>0,42 vs 0,33</b>
+        <span>Gini puskesmas absolut vs per kapita</span>
+      </div>
+      <div>
+        <b>42,3%</b>
+        <span>populasi ada di 6 provinsi prioritas primary care</span>
+      </div>
+    </section>
+
+    <section class="grid-main" id="peta">
+      <article class="panel map-panel">
+        <div class="panel-head">
+          <div>
+            <h2>Peta sebaran</h2>
+            <p>Klik provinsi untuk melihat detail.</p>
+          </div>
+          <label class="compact">
+            Metrik
+            <select id="metricSelect">
+              <option value="pkm_per100k">Puskesmas / 100.000 penduduk</option>
+              <option value="rs_per100k">RS / 100.000 penduduk</option>
+              <option value="desa_pkm_pct">Desa dengan puskesmas (%)</option>
+              <option value="faskes_per_1000km2">Faskes / 1.000 km²</option>
+              <option value="pkm_ratio_std">Rasio terhadap standar</option>
+            </select>
+          </label>
+        </div>
+        <div id="map"></div>
+        <div class="map-legend">
+          <span id="legendTitle">Puskesmas / 100.000 penduduk</span>
+          <div id="mapLegend" class="legend-items"></div>
+        </div>
+      </article>
+
+      <article class="panel detail-panel" id="detailPanel">
+        <div class="panel-head">
+          <div>
+            <h2 id="detailName">Indonesia</h2>
+            <p id="detailSub">Ringkasan nasional</p>
+          </div>
+          <span class="badge" id="detailBadge">Nasional</span>
+        </div>
+
+        <div id="detailBody" class="detail-grid"></div>
+        <p class="note" id="detailNote"></p>
+
+        <div class="coverage-mini">
+          <h3>Cakupan desa di provinsi ini</h3>
+          <div id="detailCoverage" class="coverage-bars"></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid-two" id="pola">
+      <article class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Ranking provinsi</h2>
+            <p>10 provinsi terendah atau tertinggi.</p>
+          </div>
+          <div class="inline-controls">
+            <select id="rankingMetric">
+              <option value="pkm_per100k">Puskesmas / 100.000</option>
+              <option value="rs_per100k">RS / 100.000</option>
+              <option value="desa_pkm_pct">Cakupan desa puskesmas</option>
+              <option value="pkm_ratio_std">Rasio standar</option>
+            </select>
+            <select id="rankingDirection">
+              <option value="low">Terendah</option>
+              <option value="high">Tertinggi</option>
+            </select>
+          </div>
+        </div>
+        <div class="chart chart-rank">
+          <canvas id="rankingChart"></canvas>
+        </div>
+        <p class="note">Klik batang untuk memilih provinsi.</p>
+      </article>
 
       <article class="panel">
-        <div class="heading">
-          <b>▰</b>
+        <div class="panel-head">
           <div>
-            <h3>Sebaran Fasilitas Kesehatan</h3>
-            <p>Ilustrasi wilayah Indonesia</p>
+            <h2>Rasio vs cakupan desa</h2>
+            <p>Dua jenis tantangan pemerataan.</p>
           </div>
+          <span class="badge soft">Median split</span>
         </div>
-
-        <div class="map-placeholder">
-          <span>🗺️</span>
-          <p>Sebaran fasilitas per provinsi</p>
-          <small>Visualisasi peta dapat ditambahkan kemudian.</small>
+        <div class="chart chart-scatter">
+          <canvas id="quadrantChart"></canvas>
         </div>
+        <div class="quadrant-legend" id="quadrantLegend"></div>
       </article>
-
-      <article class="panel" id="jaminan">
-        <div class="heading">
-          <b>♡</b>
-          <div>
-            <h3>Cakupan Jaminan Kesehatan</h3>
-            <p>Persentase penduduk berdasarkan jenis jaminan</p>
-          </div>
-        </div>
-
-        <div class="chart">
-          <canvas id="insuranceChart"></canvas>
-        </div>
-      </article>
-
     </section>
 
-    <!-- INDIKATOR PENYAKIT -->
-    <section class="bottom">
-
-      <article class="panel" id="penyakit">
-        <div class="heading">
-          <b class="coral">✚</b>
+    <section class="grid-two" id="cakupan">
+      <article class="panel">
+        <div class="panel-head">
           <div>
-            <h3>Indikator Penyakit</h3>
-            <p>Ringkasan indikator penyakit</p>
+            <h2>Cakupan sarana di desa</h2>
+            <p>Persentase desa yang memiliki sarana.</p>
           </div>
+          <span class="badge soft">Nasional</span>
         </div>
+        <div class="chart chart-coverage">
+          <canvas id="coverageChart"></canvas>
+        </div>
+        <p class="note">Satu desa bisa memiliki beberapa sarana; persentase tidak boleh dijumlahkan.</p>
+      </article>
 
-        <div class="metrics">
-          <div><span>Penemuan kasus TBC</span><strong id="tb">—</strong></div>
-          <div><span>Keberhasilan pengobatan TBC</span><strong id="tbs">—</strong></div>
-          <div><span>Kasus baru HIV/AIDS</span><strong id="hiv">—</strong></div>
-          <div><span>Penemuan kusta per 100.000 penduduk</span><strong id="kusta">—</strong></div>
-          <div><span>Kesakitan malaria per 1.000 penduduk</span><strong id="malaria">—</strong></div>
-          <div><span>Kesakitan DBD per 100.000 penduduk</span><strong id="dbd">—</strong></div>
+      <article class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Ketimpangan antarprovinsi</h2>
+            <p>Jumlah absolut vs rasio per kapita.</p>
+          </div>
+          <span class="badge soft">Gini</span>
+        </div>
+        <div class="chart chart-gini">
+          <canvas id="giniChart"></canvas>
+        </div>
+        <div class="mini-stats">
+          <div><span>Top 5 populasi</span><strong id="top5Pop">—</strong></div>
+          <div><span>Top 5 RS</span><strong id="top5Rs">—</strong></div>
+          <div><span>Top 5 puskesmas</span><strong id="top5Pkm">—</strong></div>
+        </div>
+        <p class="note" id="giniNote"></p>
+      </article>
+    </section>
+
+    <section class="panel table-panel" id="prioritas">
+      <div class="panel-head">
+        <div>
+          <h2>Prioritas provinsi</h2>
+          <p>Klik baris untuk melihat provinsi di peta dan detail.</p>
+        </div>
+        <label class="compact">
+          Kelompok
+          <select id="priorityFilter">
+            <option value="all">Semua prioritas</option>
+            <option value="Prioritas primary care">Prioritas primary care</option>
+            <option value="Prioritas akses geografis">Prioritas akses geografis</option>
+            <option value="Tantangan kepadatan">Tantangan kepadatan</option>
+            <option value="Relatif seimbang">Relatif seimbang</option>
+          </select>
+        </label>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Provinsi</th>
+              <th>Prioritas</th>
+              <th>Puskesmas / 100k</th>
+              <th>Cakupan desa</th>
+              <th>Kekurangan puskesmas</th>
+              <th>Status standar</th>
+            </tr>
+          </thead>
+          <tbody id="priorityTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="notes" id="catatan">
+      <article class="panel">
+        <h2>Yang perlu diperhatikan</h2>
+        <div class="note-grid">
+          <div>
+            <b>Keberadaan bukan akses</b>
+            <p>“Desa memiliki puskesmas” tidak sama dengan mudah dijangkau. Waktu tempuh dan transportasi belum ada.</p>
+          </div>
+          <div>
+            <b>Level provinsi</b>
+            <p>Angka provinsi menyembunyikan ketimpangan kab/kota. Untuk klaim pemerataan riil, perlu data kab/kota.</p>
+          </div>
+          <div>
+            <b>Missing dan tahun</b>
+            <p>6 provinsi tanpa nilai RS Khusus; 21 provinsi tanpa Balai Kesehatan. Penduduk 2026, faskes 2025.</p>
+          </div>
+          <div>
+            <b>Jangan menjumlahkan cakupan</b>
+            <p>Satu desa bisa punya beberapa sarana sekaligus, sehingga persentase cakupan tidak saling eksklusif.</p>
+          </div>
         </div>
       </article>
 
-      <!-- AKSES LAYANAN -->
-      <article class="panel" id="akses">
-        <div class="heading">
-          <b>↗</b>
-          <div>
-            <h3>Akses Layanan Kesehatan</h3>
-            <p>Alasan tidak berobat jalan</p>
-          </div>
-        </div>
-
-        <div class="access">
-          <div>Tidak punya biaya berobat</div>
-          <div>Tidak ada biaya transportasi</div>
-          <div>Tidak ada sarana transportasi</div>
-          <div>Waktu tunggu pelayanan lama</div>
-          <div>Mengobati sendiri</div>
-          <div>Tidak ada yang mendampingi</div>
-          <div>Merasa tidak perlu</div>
-          <div>Lainnya</div>
-        </div>
+      <article class="panel source-panel">
+        <h2>Sumber &amp; definisi</h2>
+        <p>Data BPS dan Kemenkes, diolah. Batas provinsi: BIG melalui GeoJSON 38 provinsi.</p>
+        <p>RS = RSU + RS Khusus. Puskesmas = rawat inap + non-rawat inap. Faskes = RS + puskesmas.</p>
+        <p>Standar acuan: 1 puskesmas per 30.000 penduduk; bukan satu-satunya norma pemerataan.</p>
       </article>
-
-      <!-- TENAGA KESEHATAN -->
-      <article class="panel" id="tenaga">
-        <div class="heading">
-          <b>♙</b>
-          <div>
-            <h3>Tenaga Kesehatan</h3>
-            <p>Jumlah berdasarkan kategori tenaga</p>
-          </div>
-        </div>
-
-        <div class="staff">
-          <div>Tenaga medis <strong>—</strong></div>
-          <div>Tenaga kebidanan <strong>—</strong></div>
-          <div>Tenaga kefarmasian <strong>—</strong></div>
-          <div>Tenaga kesehatan masyarakat <strong>—</strong></div>
-          <div>Tenaga kesehatan lingkungan <strong>—</strong></div>
-          <div>Tenaga gizi <strong>—</strong></div>
-          <div>Psikologi klinis <strong>—</strong></div>
-          <div>Keterapian fisik <strong>—</strong></div>
-          <div>Keteknisan medis <strong>—</strong></div>
-          <div>Teknik biomedika <strong>—</strong></div>
-          <div>Kesehatan tradisional <strong>—</strong></div>
-        </div>
-      </article>
-
     </section>
 
     <footer>
-      Dashboard Kesehatan Indonesia · Visualisasi data kesehatan
+      Dashboard evaluasi · Pemerataan Fasilitas Kesehatan Indonesia
     </footer>
-
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="data/dashboard-data.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
