@@ -210,6 +210,7 @@ def main():
     for prov_row in provinces_json:
         prov_name = prov_row["provinsi"]
         row = df[df["Provinsi"] == prov_name].iloc[0]
+        prov_row["desa_dengan_pkm"] = int(row["desa_pkm"])
         prov_row["coverage"] = province_coverage_vals(row)
         prov_row.update(cluster_lookup.get(prov_name, {}))
     

@@ -148,10 +148,14 @@ function updateKpis() {
     : `${nf0.format(province.pkm_ri)} rawat inap + ${nf0.format(province.pkm_nri)} non-rawat inap`;
   const villages = isAll
     ? national.desa_dengan_pkm
-    : province["Jumlah Desa"] * province.desa_pkm_pct / 100;
+    : province.desa_dengan_pkm;
+  const provinceVillageCount = Number.isFinite(province?.["Jumlah Desa"])
+    ? province["Jumlah Desa"]
+    : 0;
+  const provinceVillageWithPkm = Number.isFinite(villages) ? villages : 0;
   const villagesSub = isAll
     ? `${nf2.format(national.pct_desa_dengan_pkm)}% dari ${nf0.format(national.desa)} desa`
-    : `${percentOrDash(province.desa_pkm_pct)} (${Math.round(province["Jumlah Desa"] * province.desa_pkm_pct / 100)} dari ${nf0.format(province["Jumlah Desa"])} desa)`;
+    : `${percentOrDash(province.desa_pkm_pct)} (${nf0.format(provinceVillageWithPkm)} dari ${nf0.format(provinceVillageCount)} desa)`;
   const standard = isAll ? `${national.provinsi_memenuhi_std} / ${national.provinsi}` : province.status_std;
   const standardSub = isAll
     ? "provinsi memenuhi standar"

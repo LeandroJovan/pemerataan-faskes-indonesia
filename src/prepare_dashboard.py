@@ -237,6 +237,7 @@ def main() -> None:
     )
     national_coverage, province_coverage = build_coverage(df)
     for province in provinces:
+        province["desa_dengan_pkm"] = int(df.loc[df["Provinsi"] == province["provinsi"], "desa_pkm"].iloc[0])
         province["coverage"] = province_coverage.get(province["provinsi"], {})
 
     payload = {
