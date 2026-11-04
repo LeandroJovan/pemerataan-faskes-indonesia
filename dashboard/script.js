@@ -63,12 +63,21 @@ const QUADRANT_COLORS = {
   "tinggi-tinggi": "#2f8a68",
 };
 
+const CLUSTER_META = {
+  "Menengah-Dasar": { color: "#4ca99a", description: "Profil mendekati median; kelompok terbesar." },
+  "Cakupan Tinggi": { color: "#3978a8", description: "Cakupan desa dan RS per kapita relatif tinggi." },
+  "Rasio Tinggi & Jarang": { color: "#c58a2a", description: "Puskesmas per kapita tinggi, tetapi akses geografis rendah." },
+  "Metropolitan Jakarta": { color: "#c85d55", description: "Kepadatan faskes ekstrem dan RS sangat tinggi." },
+};
+const CLUSTER_ORDER = Object.keys(CLUSTER_META);
+
 let selectedProvince = "all";
 let map;
 let geojsonLayer;
 const layersByName = new Map();
 let rankingChart;
 let quadrantChart;
+let clusterChart;
 let coverageChart;
 let giniChart;
 
@@ -205,6 +214,7 @@ function updateDetail() {
     detailCard("Faskes / 1.000 km²", nf1.format(p.faskes_per_1000km2)),
     detailCard("Kekurangan puskesmas", `${nf1.format(p.kekurangan_pkm)} unit`),
     detailCard("Rasio standar", `${nf2.format(p.pkm_ratio_std)}x`),
+    detailCard("Klaster", p.cluster_label || "—"),
   ].join("");
   noteEl.textContent = p.rsk_missing
     ? "Nilai RS Khusus tidak tersedia; total RS memakai estimasi RS Khusus = 0."
@@ -433,6 +443,103 @@ function buildScatterChart() {
     .join("");
 }
 
+function buildClusterChart() {
+  const rows = provinces.filter((p) => Number.isFinite(p.pc1) && Number.isFinite(p.pc2) && p.cluster_label);
+  const groups = {};
+  CLUSTER_ORDER.forEach((label) => { groups[label] = []; });
+  rows.forEach((p) => {
+    if (!groups[p.cluster_label]) groups[p.cluster_label] = [];
+    groups[p.cluster_label].push({
+      x: p.pc1,
+      y: p.pc2,
+      provinsi: p.provinsi,
+      cluster_label: p.cluster_label,
+      pkm_per100k: p.pkm_per100k,
+      rs_per100k: p.rs_per100k,
+      desa_pkm_pct: p.desa_pkm_pct,
+    });
+  });
+
+  const ctx = document.getElementById("clusterChart");
+  const legendEl = document.getElementById("clusterLegend");
+  if (!ctx) return;
+  if (!rows.length) {
+    ctx.parentElement.innerHTML = '<p class="note">Data segmentasi belum tersedia. Jalankan <code>python src/build_from_csv.py</code>, lalu muat ulang halaman.</p>';
+    if (legendEl) legendEl.innerHTML = '<p class="note">Data klaster tidak ditemukan.</p>';
+    console.warn("Data segmentasi kosong: periksa outputs/tables/anggota_klaster.csv dan dashboard/data/dashboard-data.js.");
+    return;
+  }
+  if (clusterChart) clusterChart.destroy();
+  clusterChart = new Chart(ctx, {
+    type: "scatter",
+    data: {
+      datasets: Object.entries(groups)
+        .filter(([, data]) => data.length)
+        .map(([label, data]) => ({
+          label,
+          data,
+          backgroundColor: (CLUSTER_META[label] || { color: "#6c8a92" }).color,
+          borderColor: "#ffffff",
+          borderWidth: 1.5,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+        })),
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            title: (items) => items[0].raw.provinsi,
+            label: (context) => {
+              const p = context.raw;
+              return [
+                p.cluster_label,
+                `Puskesmas/100k: ${nf1.format(p.pkm_per100k)}`,
+                `RS/100k: ${nf2.format(p.rs_per100k)}`,
+                `Cakupan desa: ${percentOrDash(p.desa_pkm_pct)}`,
+              ];
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          title: { display: true, text: "Komponen utama 1 (PC1)", font: { size: 9 } },
+          grid: { color: "#edf4f4" },
+          ticks: { font: { size: 9 } },
+        },
+        y: {
+          title: { display: true, text: "Komponen utama 2 (PC2)", font: { size: 9 } },
+          grid: { color: "#edf4f4" },
+          ticks: { font: { size: 9 } },
+        },
+      },
+      onClick: (event, elements) => {
+        if (!elements.length) return;
+        const item = clusterChart.data.datasets[elements[0].datasetIndex].data[elements[0].index];
+        selectProvince(item.provinsi, true);
+      },
+    },
+  });
+
+  if (legendEl) {
+    legendEl.innerHTML = CLUSTER_ORDER
+      .map((label) => {
+        const count = rows.filter((p) => p.cluster_label === label).length;
+        const meta = CLUSTER_META[label] || { color: "#6c8a92", description: "" };
+        return `<div class="cluster-legend-row">
+          <i class="dot" style="background:${meta.color}"></i>
+          <div><b>${label}</b><small>${meta.description}</small></div>
+          <strong>${count}</strong>
+        </div>`;
+      })
+      .join("");
+  }
+}
+
 function buildCoverageChart() {
   const entries = Object.entries(national.coverage)
     .map(([label, value]) => ({ label, value: value.pct }))
@@ -578,15 +685,89 @@ function selectProvince(name, zoom = false) {
 
 function initNav() {
   const links = [...document.querySelectorAll("#sidebarNav .nav-link")];
+  const targets = links
+    .map((link) => ({ link, target: document.getElementById(link.dataset.target) }))
+    .filter((item) => item.target);
+  let ticking = false;
+  let scrollSpyLocked = false;
+  let scrollSpyLockTimer = null;
+  let lastClickedLink = null;
+
+  function setActive(activeLink) {
+    if (!activeLink) return;
+    links.forEach((link) => {
+      const isActive = link === activeLink;
+      link.classList.toggle("active", isActive);
+      if (isActive) {
+        link.setAttribute("aria-current", "true");
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    });
+  }
+
+  function updateActiveFromScroll() {
+    if (scrollSpyLocked) return;
+    const offset = Math.min(140, window.innerHeight * 0.18);
+    let current = targets[0];
+    targets.forEach((item) => {
+      if (item.target.getBoundingClientRect().top <= offset) current = item;
+    });
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) {
+      current = targets[targets.length - 1];
+    }
+    if (current) setActive(current.link);
+  }
+
+  function scheduleScrollSpy() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      ticking = false;
+      updateActiveFromScroll();
+    });
+  }
+
+  function lockScrollSpy(link) {
+    scrollSpyLocked = true;
+    lastClickedLink = link;
+    if (scrollSpyLockTimer) window.clearTimeout(scrollSpyLockTimer);
+    scrollSpyLockTimer = window.setTimeout(() => {
+      scrollSpyLocked = false;
+      setActive(lastClickedLink);
+    }, 1200);
+  }
+
+  function releaseScrollSpy() {
+    if (!scrollSpyLocked) return;
+    scrollSpyLocked = false;
+    if (scrollSpyLockTimer) window.clearTimeout(scrollSpyLockTimer);
+    setActive(lastClickedLink);
+  }
+
+  function unlockScrollSpy() {
+    if (!scrollSpyLocked) return;
+    scrollSpyLocked = false;
+    if (scrollSpyLockTimer) window.clearTimeout(scrollSpyLockTimer);
+  }
+
   links.forEach((link) => {
     link.addEventListener("click", (event) => {
       event.preventDefault();
-      links.forEach((item) => item.classList.remove("active"));
-      link.classList.add("active");
+      lockScrollSpy(link);
+      setActive(link);
       const target = document.getElementById(link.dataset.target);
       if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
+
+  window.addEventListener("scroll", scheduleScrollSpy, { passive: true });
+  window.addEventListener("resize", scheduleScrollSpy);
+  window.addEventListener("scrollend", releaseScrollSpy, { passive: true });
+  ["wheel", "touchstart", "keydown"].forEach((eventName) => {
+    window.addEventListener(eventName, unlockScrollSpy, { passive: true });
+  });
+  updateActiveFromScroll();
 }
 
 function initEvents() {
@@ -610,5 +791,6 @@ initNav();
 updateSelectionUi();
 buildRankingChart();
 buildScatterChart();
+buildClusterChart();
 buildCoverageChart();
 buildGiniChart();
