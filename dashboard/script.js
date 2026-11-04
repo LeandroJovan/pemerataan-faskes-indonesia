@@ -586,52 +586,39 @@ function refreshLabelStyles() {
  * mengisi container tanpa menyisakan laut kosong besar.
  */
 const INDONESIA_FIT_BOUNDS = L.latLngBounds([-11.05, 95.0], [6.0, 141.05]);
-const JAVA_FIT_BOUNDS = L.latLngBounds([-9.0, 105.2], [-5.7, 114.6]);
+// Extent Pulau Jawa sesuai data (Banten s.d. Jawa Timur): lon 105.12–115.9, lat -8.78..-5.43
+const JAVA_FIT_BOUNDS = L.latLngBounds([-8.9, 105.0], [-5.35, 116.05]);
+
+// Batas geser peta: area Indonesia + sedikit padding, agar user tidak bisa
+// menggeser peta ke laut kosong.
+const INDONESIA_MAX_BOUNDS = L.latLngBounds([-13.5, 92.5], [8.5, 143.5]);
+
+// Lantai minZoom, dihitung sekali dari fit nasional agar tidak "merangkak naik"
+// setiap kali fitBounds dipanggil ulang (mis. setelah "Fokus Jawa").
+let MIN_ZOOM_FLOOR = 2;
 
 let pendingFit = null; // permintaan fitBounds yang ditunda sampai layout stabil
 
 /**
- * Fit bounds ke container (padding seragam [10, 10] pada sumbu pembatas).
- * Leaflet menyisakan ruang kosong di sumbu lain saat snap ke level zoom,
- * jadi bounds dilebarkan di sumbu tersebut sampai peta memenuhi container.
+ * Fit peta ke bounds tertentu.
+ * - zoomSnap 0.25 / zoomDelta 0.5: zoom tidak "loncat" ke level bulat.
+ * - padding rapat [4, 4] (default) supaya peta tidak menyisakan ruang kosong.
+ * - setelah fitBounds, peta dipusatkan ulang ke tengah bounds.
  */
 function fitMapToBounds(bounds, options = {}) {
+  const padding = options.padding || [4, 4];
   if (!map.getSize().x) {
-    pendingFit = [bounds, options];
+    pendingFit = [bounds, padding, options];
     return;
   }
   map.invalidateSize({ animate: false });
-  const pad = 10;
-  const size = map.getSize();
-  let zoom = map.getBoundsZoom(bounds, false, L.point(pad, pad));
-  if (options.maxZoom) zoom = Math.min(zoom, options.maxZoom);
 
-  // px ukuran bounds pada zoom target dan ruang yang tersedia
-  const nw = map.project(bounds.getNorthWest(), zoom);
-  const se = map.project(bounds.getSouthEast(), zoom);
-  const bw = Math.max(se.x - nw.x, 1);
-  const bh = Math.max(se.y - nw.y, 1);
-  const availW = Math.max(size.x - pad * 2, 1);
-  const availH = Math.max(size.y - pad * 2, 1);
-
-  let extraX = 0;
-  let extraY = 0;
-  if (bw / bh > availW / availH) {
-    // sumbu horizontal yang membatasi -> lebarkan vertikal agar penuh
-    extraY = (bh * (availW / bw) - bh) / 2;
-  } else {
-    extraX = (bw * (availH / bh) - bw) / 2;
-  }
-
-  const center = L.point((nw.x + se.x) / 2, (nw.y + se.y) / 2);
-  const halfW = bw / 2 + extraX;
-  const halfH = bh / 2 + extraY;
-  const expanded = L.latLngBounds(
-    map.unproject([center.x - halfW, center.y + halfH], zoom), // south-west
-    map.unproject([center.x + halfW, center.y - halfH], zoom) // north-east
-  );
-
-  map.fitBounds(expanded, { padding: [pad, pad], animate: false, maxZoom: zoom });
+  let targetZoom = map.getBoundsZoom(bounds, false, L.point(padding[0], padding[1]));
+  if (options.maxZoom) targetZoom = Math.min(targetZoom, options.maxZoom);
+  // minZoom sedikit di bawah zoom hasil fit; tidak pernah naik antar pemanggilan
+  // (selalu dihitung dari baseline nasional) supaya "Reset view" tetap konsisten.
+  map.setMinZoom(Math.max(1, Math.min(MIN_ZOOM_FLOOR, targetZoom - 1)));
+  map.setView(bounds.getCenter(), targetZoom, { animate: false });
 }
 
 function resetMapView() {
@@ -639,7 +626,7 @@ function resetMapView() {
 }
 
 function focusJava() {
-  fitMapToBounds(JAVA_FIT_BOUNDS, { maxZoom: 7 });
+  fitMapToBounds(JAVA_FIT_BOUNDS, { padding: [20, 20], maxZoom: 7 });
 }
 
 function updateMap() {
@@ -675,8 +662,9 @@ function updateMap() {
   refreshLabelStyles();
 
   if (pendingFit) {
-    fitMapToBounds(...pendingFit);
+    const [pendingBounds, pendingPadding, pendingOptions] = pendingFit;
     pendingFit = null;
+    fitMapToBounds(pendingBounds, { ...pendingOptions, padding: pendingPadding });
   }
 }
 
@@ -685,8 +673,11 @@ function initMap() {
     zoomControl: true,
     attributionControl: false,
     scrollWheelZoom: false,
-    minZoom: 3,
-    maxBoundsViscosity: 0.4,
+    zoomSnap: 0.25,
+    zoomDelta: 0.5,
+    minZoom: 2,
+    maxBounds: INDONESIA_MAX_BOUNDS,
+    maxBoundsViscosity: 1.0,
   });
 
   geojsonLayer = L.geoJSON(GEOJSON, {
@@ -731,6 +722,9 @@ function initMap() {
   }).addTo(map);
 
   buildLabelIndex();
+  map.invalidateSize({ animate: false });
+  // baseline minZoom dari fit nasional (dihitung sekali, dipakai semua fit)
+  MIN_ZOOM_FLOOR = Math.max(1, map.getBoundsZoom(INDONESIA_FIT_BOUNDS, false, L.point(4, 4)) - 1);
   resetMapView();
   map.on("zoomend", () => {
     if (labelState.items.length) renderProvinceLabels();
@@ -740,6 +734,25 @@ function initMap() {
     resetMapView();
     renderProvinceLabels();
   });
+
+  // Ukuran container dihitung ulang setelah layout stabil / saat section
+  // "Peta & Rasio" kembali terlihat, agar fitBounds tidak memakai ukuran lama.
+  const petaSection = document.getElementById("peta");
+  if (petaSection && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        map.invalidateSize({ animate: false });
+        resetMapView();
+      });
+    }, { threshold: 0.15 });
+    io.observe(petaSection);
+  }
+  window.addEventListener("resize", () => {
+    map.invalidateSize({ animate: false });
+    resetMapView();
+  });
+
   updateMap();
 }
 

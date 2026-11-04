@@ -367,10 +367,14 @@ h3 {
   font-size: 10px;
 }
 
+/* Kartu "Peta sebaran" tetap putih seperti kartu lain */
+.map-panel {
+  background: var(--white);
+}
+
 #map {
   position: relative;
-  height: 560px;
-  min-height: 560px;
+  height: 460px;
   border-radius: 16px;
   border: 1px solid #7fb4cc;
   background: #a9d3e8;
@@ -378,9 +382,7 @@ h3 {
   outline: 0;
 }
 
-/* Background laut: pastikan tidak ada wrapper/parent yang menimpa */
-.map-panel,
-#map,
+/* Warna laut HANYA di dalam area peta, bukan di wrapper/kartu */
 #map .leaflet-container,
 #map .leaflet-pane,
 #map .leaflet-map-pane {
@@ -391,9 +393,6 @@ h3 {
   width: 100%;
   height: 100%;
   font-family: "Inter", sans-serif;
-  background: #a9d3e8;
-  border-radius: 16px;
-  border: 1px solid #7fb4cc;
 }
 
 .leaflet-container .leaflet-overlay-pane svg,
@@ -438,10 +437,17 @@ h3 {
   display: none;
 }
 
+.map-shell {
+  position: relative;
+}
+
 .map-tools {
+  position: absolute;
+  left: 10px;
+  bottom: 10px;
+  z-index: 500; /* di atas peta, di bawah kontrol Leaflet (1000) */
   display: flex;
   gap: 6px;
-  margin-top: 10px;
   flex-wrap: wrap;
 }
 
@@ -449,12 +455,13 @@ h3 {
   padding: 6px 11px;
   border: 1px solid #7fb4cc;
   border-radius: 999px;
-  background: #eef8fc;
+  background: #ffffff;
   color: var(--dark);
   font-family: inherit;
   font-size: 10px;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 1px 4px rgba(11, 61, 53, 0.16);
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
