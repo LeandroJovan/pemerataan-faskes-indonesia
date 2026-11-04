@@ -140,6 +140,9 @@ def main():
         return res
     
     # National stats
+    total_desa_nasional = int(df["Jumlah Desa"].sum())
+    desa_pkm_nasional = int(df["desa_pkm"].sum())
+    pct_desa_dengan_pkm_nasional = round(desa_pkm_nasional / total_desa_nasional * 100, 2)
     national = {
         "provinsi": int(len(df)),
         "penduduk": float(df["pop"].sum()),
@@ -148,9 +151,11 @@ def main():
         "rs": round(float(df["total_rs_est"].sum()), 1),
         "rsu": int(df["rsu"].sum()),
         "rsk": int(df["rsk"].fillna(0).sum()),
-        "desa_tanpa_pkm": int(df["Jumlah Desa"].sum()) - int(df["desa_pkm"].sum()),
+        "desa_dengan_pkm": desa_pkm_nasional,
+        "desa_tanpa_pkm": total_desa_nasional - desa_pkm_nasional,
         "desa_tanpa_rs": int(df["Jumlah Desa"].sum()) - int(df["desa_rs"].sum()),
-        "pct_desa_tanpa_pkm": round((int(df["Jumlah Desa"].sum()) - int(df["desa_pkm"].sum())) / int(df["Jumlah Desa"].sum()) * 100, 2),
+        "pct_desa_dengan_pkm": pct_desa_dengan_pkm_nasional,
+        "pct_desa_tanpa_pkm": round(100 - pct_desa_dengan_pkm_nasional, 2),
         "pct_desa_tanpa_rs": round((int(df["Jumlah Desa"].sum()) - int(df["desa_rs"].sum())) / int(df["Jumlah Desa"].sum()) * 100, 2),
         "provinsi_belum_std": int((df["pkm_gap"] < 0).sum()),
         "provinsi_memenuhi_std": int(len(df) - (df["pkm_gap"] < 0).sum()),

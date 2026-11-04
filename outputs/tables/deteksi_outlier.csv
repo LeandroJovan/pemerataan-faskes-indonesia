@@ -1,0 +1,24 @@
+Fitur,Q1,Q3,IQR,Batas bawah,Batas atas,Jumlah outlier,Provinsi outlier
+Desa,984.75,2548.5,1563.75,-1360.875,4894.125,5,Aceh; Jawa Barat; Jawa Tengah; Jawa Timur; Sumatera Utara
+Rumah Sakit,22.75,70.75,48.0,-49.25,142.75,4,Jawa Barat; Jawa Tengah; Jawa Timur; Sumatera Utara
+Puskesmas,108.5,301.5,193.0,-181.0,591.0,4,Jawa Barat; Jawa Tengah; Jawa Timur; Sumatera Utara
+Puskesmas Pembantu,228.0,846.25,618.25,-699.375,1773.625,2,Jawa Timur; Sumatera Utara
+Apotek,113.5,468.75,355.25,-419.375,1001.625,3,Jawa Barat; Jawa Tengah; Jawa Timur
+Klinik Utama (Unit),6.25,41.75,35.5,-47.0,95.0,4,DKI Jakarta; Jawa Barat; Jawa Tengah; Jawa Timur
+Balai Kesehatan,1.0,3.0,2.0,-2.0,6.0,3,Jawa Barat; Jawa Tengah; Sumatera Utara
+Klinik Pratama,32.5,227.5,195.0,-260.0,520.0,4,Jawa Barat; Jawa Tengah; Jawa Timur; Sumatera Utara
+Penduduk (ribu),1552.9750000000001,6667.2,5114.224999999999,-6118.362499999999,14338.537499999999,4,Jawa Barat; Jawa Tengah; Jawa Timur; Sumatera Utara
+Laju Pertumbuhan Penduduk per Tahun,1.115,1.43,0.31499999999999995,0.6425000000000001,1.9024999999999999,3,DI Yogyakarta; DKI Jakarta; Kalimantan Timur
+Persentase Penduduk,0.5425,2.3225,1.7799999999999998,-2.1275,4.9925,4,Jawa Barat; Jawa Tengah; Jawa Timur; Sumatera Utara
+Kepadatan Penduduk / km²,40.75,261.5,220.75,-290.375,592.625,7,Bali; Banten; DI Yogyakarta; DKI Jakarta; Jawa Barat; Jawa Tengah; Jawa Timur
+Rasio Jenis Kelamin Penduduk,101.275,105.1,3.8249999999999886,95.53750000000002,110.83749999999998,2,Papua Pegunungan; Papua Tengah
+Rumah Sakit Umum,22.0,66.75,44.75,-45.125,133.875,5,DKI Jakarta; Jawa Barat; Jawa Tengah; Jawa Timur; Sumatera Utara
+Rumah Sakit Khusus,3.0,20.0,17.0,-22.5,45.5,4,DKI Jakarta; Jawa Barat; Jawa Tengah; Jawa Timur
+Puskesmas Rawat Inap,39.5,136.25,96.75,-105.625,281.375,3,Jawa Tengah; Jawa Timur; Sulawesi Selatan
+Puskesmas Non Rawat Inap,75.25,185.5,110.25,-90.125,350.875,4,Jawa Barat; Jawa Tengah; Jawa Timur; Sumatera Utara
+Faskes,149.75,382.5,232.75,-199.375,731.625,4,Jawa Barat; Jawa Tengah; Jawa Timur; Sumatera Utara
+Rumah Sakit,37.75,86.75,49.0,-35.75,160.25,5,DKI Jakarta; Jawa Barat; Jawa Tengah; Jawa Timur; Sumatera Utara
+Faskes per 100 Ribu Penduduk,4.9785839171229975,9.58977029635363,4.611186379230632,-1.9381956517229506,16.506549865199577,2,Papua Barat Daya; Papua Selatan
+Rumah Sakit per 100 Ribu Penduduk,1.0677876150854362,1.674157579687574,0.6063699646021379,0.15823266818222936,2.583712526590781,0,
+Puskesmas per 100 Ribu Penduduk,3.6018181136375005,8.116708665749414,4.514890552111913,-3.170517714530369,14.889044493917282,2,Papua Barat Daya; Papua Selatan
+Faskes per Desa/Kelurahan,0.13711022129558081,0.20931579710595277,0.07220557581037196,0.028801857580022877,0.3176241608215107,2,DI Yogyakarta; DKI Jakarta

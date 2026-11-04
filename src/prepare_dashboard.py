@@ -131,6 +131,7 @@ def load_master(areas: pd.Series) -> pd.DataFrame:
 def build_national(df: pd.DataFrame) -> dict:
     total_desa = int(df["Jumlah Desa"].sum())
     desa_pkm = int(df["desa_pkm"].sum())
+    pct_desa_dengan_pkm = round(desa_pkm / total_desa * 100, 2)
     desa_rs = int(df["desa_rs"].sum())
     total_pkm = int(df["total_pkm"].sum())
     total_rs = float(df["total_rs_est"].sum())
@@ -145,9 +146,11 @@ def build_national(df: pd.DataFrame) -> dict:
         "rs": total_rs,
         "rsu": total_rsu,
         "rsk": total_rsk,
+        "desa_dengan_pkm": desa_pkm,
         "desa_tanpa_pkm": total_desa - desa_pkm,
         "desa_tanpa_rs": total_desa - desa_rs,
-        "pct_desa_tanpa_pkm": (total_desa - desa_pkm) / total_desa * 100,
+        "pct_desa_dengan_pkm": pct_desa_dengan_pkm,
+        "pct_desa_tanpa_pkm": round(100 - pct_desa_dengan_pkm, 2),
         "pct_desa_tanpa_rs": (total_desa - desa_rs) / total_desa * 100,
         "provinsi_belum_std": below_std,
         "provinsi_memenuhi_std": len(df) - below_std,

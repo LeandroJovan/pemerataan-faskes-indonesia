@@ -41,9 +41,14 @@ select {
   position: fixed;
   inset: 0 auto 0 0;
   width: 235px;
+  height: 100vh;
+  height: 100dvh;
   padding: 24px 16px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  transform: translateZ(0);
   background: linear-gradient(175deg, #0f4e4c 0%, #123e45 72%, #122f39 100%);
   color: #fff;
   z-index: 20;

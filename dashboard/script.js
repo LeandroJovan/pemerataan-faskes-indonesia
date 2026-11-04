@@ -126,9 +126,11 @@ function updateKpis() {
   const pkmSub = isAll
     ? `${nf0.format(national.puskesmas)} puskesmas di 38 provinsi`
     : `${nf0.format(province.pkm_ri)} rawat inap + ${nf0.format(province.pkm_nri)} non-rawat inap`;
-  const villages = isAll ? national.desa_tanpa_pkm : province["Jumlah Desa"] * (1 - province.desa_pkm_pct / 100);
+  const villages = isAll
+    ? national.desa_dengan_pkm
+    : province["Jumlah Desa"] * province.desa_pkm_pct / 100;
   const villagesSub = isAll
-    ? `${nf1.format(national.pct_desa_tanpa_pkm)}% dari ${nf0.format(national.desa)} desa`
+    ? `${nf2.format(national.pct_desa_dengan_pkm)}% dari ${nf0.format(national.desa)} desa`
     : `${percentOrDash(province.desa_pkm_pct)} desa memiliki puskesmas`;
   const standard = isAll ? `${national.provinsi_memenuhi_std} / ${national.provinsi}` : province.status_std;
   const standardSub = isAll
@@ -143,6 +145,7 @@ function updateKpis() {
   document.getElementById("kpiVillagesSub").textContent = villagesSub;
   document.getElementById("kpiStandard").textContent = standard;
   document.getElementById("kpiStandardSub").textContent = standardSub;
+  document.getElementById("nationalPkmWithout").textContent = `${nf2.format(national.pct_desa_tanpa_pkm)}%`;
 }
 
 function detailCard(label, value) {
@@ -587,6 +590,20 @@ function initNav() {
       if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
+
+  const sections = links
+    .map((link) => document.getElementById(link.dataset.target))
+    .filter(Boolean);
+  const observer = new IntersectionObserver((entries) => {
+    const visible = entries
+      .filter((entry) => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!visible) return;
+    links.forEach((link) => {
+      link.classList.toggle("active", link.dataset.target === visible.target.id);
+    });
+  }, { rootMargin: "-15% 0px -65% 0px", threshold: [0, 0.1, 0.25] });
+  sections.forEach((section) => observer.observe(section));
 }
 
 function initEvents() {
