@@ -368,15 +368,99 @@ h3 {
 }
 
 #map {
-  height: 390px;
-  border-radius: 9px;
-  background: #e9f4f3;
+  position: relative;
+  height: 560px;
+  min-height: 560px;
+  border-radius: 16px;
+  border: 1px solid #7fb4cc;
+  background: #a9d3e8;
+  overflow: hidden;
   outline: 0;
 }
 
+/* Background laut: pastikan tidak ada wrapper/parent yang menimpa */
+.map-panel,
+#map,
+#map .leaflet-container,
+#map .leaflet-pane,
+#map .leaflet-map-pane {
+  background-color: #a9d3e8;
+}
+
 .leaflet-container {
+  width: 100%;
+  height: 100%;
   font-family: "Inter", sans-serif;
-  background: #e9f4f3;
+  background: #a9d3e8;
+  border-radius: 16px;
+  border: 1px solid #7fb4cc;
+}
+
+.leaflet-container .leaflet-overlay-pane svg,
+.leaflet-container .leaflet-tile-pane {
+  background: transparent;
+}
+
+/* Label nama provinsi (di atas polygon, tidak menangkap klik) */
+.leaflet-tooltip.prov-label {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  pointer-events: none;
+  white-space: nowrap;
+  text-align: center;
+  font-family: "Inter", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.1px;
+  color: #0b2e29;
+  text-shadow:
+    0 0 3px #ffffff,
+    0 0 2px #ffffff,
+    0 0 1px #ffffff;
+}
+
+.leaflet-tooltip.prov-label.prov-label--light {
+  color: #ffffff;
+  text-shadow:
+    0 0 3px rgba(11, 61, 53, 0.95),
+    0 0 2px rgba(11, 61, 53, 0.9),
+    0 0 1px rgba(11, 61, 53, 0.9);
+}
+
+.leaflet-tooltip.prov-label.prov-label--small {
+  font-size: 10px;
+}
+
+.leaflet-tooltip.prov-label::before {
+  display: none;
+}
+
+.map-tools {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.map-tools button {
+  padding: 6px 11px;
+  border: 1px solid #7fb4cc;
+  border-radius: 999px;
+  background: #eef8fc;
+  color: var(--dark);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.map-tools button:hover {
+  background: #dceff7;
+  border-color: #5c9fbc;
 }
 
 .leaflet-control-attribution {
@@ -410,6 +494,7 @@ h3 {
   width: 18px;
   height: 10px;
   border-radius: 3px;
+  border: 1px solid #0b3d35;
 }
 
 .badge {
@@ -484,6 +569,66 @@ h3 {
 
 .chart-gini {
   height: 228px;
+}
+
+.cluster-panel {
+  margin-top: 12px;
+}
+
+.cluster-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.7fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.chart-cluster {
+  height: 360px;
+}
+
+.cluster-side {
+  padding: 13px;
+  border-radius: 9px;
+  background: #f6fbfa;
+}
+
+.cluster-legend {
+  display: grid;
+  gap: 9px;
+}
+
+.cluster-legend-row {
+  display: grid;
+  grid-template-columns: 9px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: start;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.cluster-legend-row .dot {
+  margin-top: 3px;
+}
+
+.cluster-legend-row b {
+  display: block;
+  color: var(--ink);
+  font-size: 10px;
+}
+
+.cluster-legend-row small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+.cluster-legend-row strong {
+  color: var(--dark);
+  font-size: 14px;
+  line-height: 1;
 }
 
 .inline-controls {
@@ -784,7 +929,16 @@ footer {
   }
 
   #map {
-    height: 330px;
+    height: 560px;
+    min-height: 560px;
+  }
+
+  .cluster-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-cluster {
+    height: 300px;
   }
 }
 
@@ -812,7 +966,8 @@ footer {
   }
 
   .chart-rank,
-  .chart-scatter {
+  .chart-scatter,
+  .chart-cluster {
     height: 270px;
   }
 }

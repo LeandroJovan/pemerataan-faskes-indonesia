@@ -16,6 +16,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED_CSV = ROOT / "data" / "processed" / "master_provinsi_clean.csv"
+CLUSTER_CSV = ROOT / "outputs" / "tables" / "anggota_klaster.csv"
 GEOJSON_IN = ROOT / "dashboard" / "data" / "indonesia_provinsi.geojson"
 OUT_JS = ROOT / "dashboard" / "data" / "dashboard-data.js"
 OUT_GEOJSON = ROOT / "dashboard" / "data" / "indonesia_provinsi.geojson"
@@ -67,6 +68,22 @@ def main():
     # Normalisasi nama provinsi
     df["Provinsi"] = df["Provinsi"].str.strip()
     
+    # Label cluster dan koordinat PCA untuk grafik segmentasi
+    cluster_lookup = {}
+    if CLUSTER_CSV.exists():
+        cluster_df = pd.read_csv(CLUSTER_CSV)
+        cluster_cols = {"Provinsi", "cluster", "cluster_label", "pc1", "pc2"}
+        if cluster_cols.issubset(cluster_df.columns):
+            for _, row in cluster_df.iterrows():
+                if pd.isna(row["pc1"]) or pd.isna(row["pc2"]):
+                    continue
+                cluster_lookup[str(row["Provinsi"]).strip()] = {
+                    "cluster": int(row["cluster"]),
+                    "cluster_label": str(row["cluster_label"]),
+                    "pc1": round(float(row["pc1"]), 4),
+                    "pc2": round(float(row["pc2"]), 4),
+                }
+
     # Derive additional columns (jika belum ada)
     df["faskes_per100k"] = (df["total_rs_est"] + df["total_pkm"]) / df["pop"] * 100_000
     if "pkm_per_1000km2" not in df.columns:
@@ -194,6 +211,7 @@ def main():
         prov_name = prov_row["provinsi"]
         row = df[df["Provinsi"] == prov_name].iloc[0]
         prov_row["coverage"] = province_coverage_vals(row)
+        prov_row.update(cluster_lookup.get(prov_name, {}))
     
     # Meta info
     payload = {

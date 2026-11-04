@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pemerataan Faskes Indonesia</title>
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=20261104-cluster">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
@@ -24,6 +24,7 @@
       <a href="#ringkasan" class="nav-link active" data-target="ringkasan">Ringkasan</a>
       <a href="#peta" class="nav-link" data-target="peta">Peta &amp; Rasio</a>
       <a href="#pola" class="nav-link" data-target="pola">Pola Pemerataan</a>
+      <a href="#klaster" class="nav-link" data-target="klaster">Segmentasi</a>
       <a href="#cakupan" class="nav-link" data-target="cakupan">Cakupan Desa</a>
       <a href="#prioritas" class="nav-link" data-target="prioritas">Prioritas</a>
       <a href="#catatan" class="nav-link" data-target="catatan">Catatan Data</a>
@@ -111,6 +112,10 @@
           </label>
         </div>
         <div id="map"></div>
+        <div class="map-tools">
+          <button type="button" id="mapResetView">Reset view</button>
+          <button type="button" id="mapFocusJava">Fokus Jawa</button>
+        </div>
         <div class="map-legend">
           <span id="legendTitle">Puskesmas / 100.000 penduduk</span>
           <div id="mapLegend" class="legend-items"></div>
@@ -175,6 +180,26 @@
         </div>
         <div class="quadrant-legend" id="quadrantLegend"></div>
       </article>
+    </section>
+
+    <section class="panel cluster-panel" id="klaster">
+      <div class="panel-head">
+        <div>
+          <h2>Segmentasi provinsi</h2>
+          <p>Empat klaster Agglomerative Ward, diproyeksikan ke dua komponen utama (PCA).</p>
+        </div>
+        <span class="badge soft">k = 4</span>
+      </div>
+      <div class="cluster-layout">
+        <div class="chart chart-cluster">
+          <canvas id="clusterChart"></canvas>
+        </div>
+        <div class="cluster-side">
+          <h3>Profil klaster</h3>
+          <div id="clusterLegend" class="cluster-legend"></div>
+          <p class="note">Titik yang berdekatan memiliki profil fasilitas yang mirip. Klik titik untuk memilih provinsi.</p>
+        </div>
+      </div>
     </section>
 
     <section class="grid-two" id="cakupan">
@@ -284,7 +309,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="data/dashboard-data.js"></script>
-  <script src="script.js"></script>
+  <script src="data/dashboard-data.js?v=20261104-cluster"></script>
+  <script src="script.js?v=20261104-scrollspy2"></script>
 </body>
 </html>
