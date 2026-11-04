@@ -1,0 +1,6 @@
+indikator,gini,theil_t,cv,max_min_ratio,top5_share_pct
+total_faskes_est,0.4285,0.3329,0.9733,20.56,41.48
+pkm_per100k,0.3341,0.1804,0.6238,44.7,28.83
+rs_per100k,0.1747,0.0478,0.3134,4.41,20.27
+desa_pkm_pct,0.1685,0.0483,0.3212,4.94,21.07
+faskes_per_1000km2,0.7056,1.2078,2.6966,431.11,66.3
