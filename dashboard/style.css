@@ -363,15 +363,99 @@ h3 {
 }
 
 #map {
-  height: 390px;
-  border-radius: 9px;
-  background: #e9f4f3;
+  position: relative;
+  height: 560px;
+  min-height: 560px;
+  border-radius: 16px;
+  border: 1px solid #7fb4cc;
+  background: #a9d3e8;
+  overflow: hidden;
   outline: 0;
 }
 
+/* Background laut: pastikan tidak ada wrapper/parent yang menimpa */
+.map-panel,
+#map,
+#map .leaflet-container,
+#map .leaflet-pane,
+#map .leaflet-map-pane {
+  background-color: #a9d3e8;
+}
+
 .leaflet-container {
+  width: 100%;
+  height: 100%;
   font-family: "Inter", sans-serif;
-  background: #e9f4f3;
+  background: #a9d3e8;
+  border-radius: 16px;
+  border: 1px solid #7fb4cc;
+}
+
+.leaflet-container .leaflet-overlay-pane svg,
+.leaflet-container .leaflet-tile-pane {
+  background: transparent;
+}
+
+/* Label nama provinsi (di atas polygon, tidak menangkap klik) */
+.leaflet-tooltip.prov-label {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  pointer-events: none;
+  white-space: nowrap;
+  text-align: center;
+  font-family: "Inter", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: 0.1px;
+  color: #0b2e29;
+  text-shadow:
+    0 0 3px #ffffff,
+    0 0 2px #ffffff,
+    0 0 1px #ffffff;
+}
+
+.leaflet-tooltip.prov-label.prov-label--light {
+  color: #ffffff;
+  text-shadow:
+    0 0 3px rgba(11, 61, 53, 0.95),
+    0 0 2px rgba(11, 61, 53, 0.9),
+    0 0 1px rgba(11, 61, 53, 0.9);
+}
+
+.leaflet-tooltip.prov-label.prov-label--small {
+  font-size: 10px;
+}
+
+.leaflet-tooltip.prov-label::before {
+  display: none;
+}
+
+.map-tools {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.map-tools button {
+  padding: 6px 11px;
+  border: 1px solid #7fb4cc;
+  border-radius: 999px;
+  background: #eef8fc;
+  color: var(--dark);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.map-tools button:hover {
+  background: #dceff7;
+  border-color: #5c9fbc;
 }
 
 .leaflet-control-attribution {
@@ -405,6 +489,7 @@ h3 {
   width: 18px;
   height: 10px;
   border-radius: 3px;
+  border: 1px solid #0b3d35;
 }
 
 .badge {
@@ -839,7 +924,8 @@ footer {
   }
 
   #map {
-    height: 330px;
+    height: 560px;
+    min-height: 560px;
   }
 
   .cluster-layout {

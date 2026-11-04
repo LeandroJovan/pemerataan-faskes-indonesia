@@ -9,36 +9,41 @@ const nf1 = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 });
 const nf2 = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 2 });
 const compact = new Intl.NumberFormat("id-ID", { notation: "compact", maximumFractionDigits: 1 });
 
+// Palet kontras di atas laut biru (kelas 1..5, rendah -> tinggi)
+const MAP_PALETTE = ["#e3f2b5", "#a8dc8f", "#4fb87a", "#1a8a63", "#05503f"];
+// Kelas 1-2 (warna terang) memakai teks gelap, kelas 3-5 teks putih
+const MAP_LIGHT_TEXT_FROM_CLASS = 2;
+
 const METRICS = {
   pkm_per100k: {
     label: "Puskesmas / 100.000 penduduk",
     short: "Pkm/100k",
     format: (v) => nf1.format(v),
-    palette: ["#edf8f2", "#c7ead9", "#8dd4bd", "#4ca99a", "#237b72", "#0d4a4c"],
+    palette: MAP_PALETTE,
   },
   rs_per100k: {
     label: "RS / 100.000 penduduk",
     short: "RS/100k",
     format: (v) => nf2.format(v),
-    palette: ["#eef4f9", "#cfe1ef", "#a1c5de", "#6ba1c8", "#3978a8", "#1e4e74"],
+    palette: MAP_PALETTE,
   },
   desa_pkm_pct: {
     label: "Desa dengan puskesmas (%)",
     short: "Cakupan desa",
     format: (v) => `${nf1.format(v)}%`,
-    palette: ["#fff7e8", "#fbe6b9", "#f1cd7e", "#dba94b", "#b98326", "#8d6217"],
+    palette: MAP_PALETTE,
   },
   faskes_per_1000km2: {
     label: "Faskes / 1.000 km²",
     short: "Faskes/km²",
     format: (v) => nf1.format(v),
-    palette: ["#f5eff8", "#e2d2ec", "#c7addb", "#a47cc2", "#7f52a3", "#5b347c"],
+    palette: MAP_PALETTE,
   },
   pkm_ratio_std: {
     label: "Rasio terhadap standar 1 : 30.000",
     short: "Rasio standar",
     format: (v) => `${nf2.format(v)}x`,
-    palette: ["#fff0ec", "#f7cfc5", "#eda99a", "#dc7b6e", "#bc514a", "#913330"],
+    palette: MAP_PALETTE,
   },
 };
 
@@ -103,15 +108,21 @@ function getScale(metric, classes = 5) {
     breaks.push(values[Math.floor((i / classes) * (values.length - 1))]);
   }
   breaks.push(values[values.length - 1]);
-  return { breaks, palette: METRICS[metric].palette };
+  return { breaks, palette: MAP_PALETTE };
+}
+
+function classIndexFor(value, scale) {
+  if (!Number.isFinite(value)) return -1;
+  for (let i = 0; i < scale.breaks.length - 1; i += 1) {
+    if (value <= scale.breaks[i + 1]) return i;
+  }
+  return scale.palette.length - 1;
 }
 
 function colorFor(value, scale) {
-  if (!Number.isFinite(value)) return "#c9d8d9";
-  for (let i = 0; i < scale.breaks.length - 1; i += 1) {
-    if (value <= scale.breaks[i + 1]) return scale.palette[i];
-  }
-  return scale.palette[scale.palette.length - 1];
+  const index = classIndexFor(value, scale);
+  if (index < 0) return scale.palette[0];
+  return scale.palette[Math.min(index, scale.palette.length - 1)];
 }
 
 function fillSelect() {
@@ -224,35 +235,442 @@ function updateDetail() {
 
 function metricTooltip(feature, metric) {
   const value = feature.properties[metric];
-  return `<b>${feature.properties.name}</b><br>${METRICS[metric].label}: ${METRICS[metric].format(value)}`;
+  return `<b>${provinceNameOf(feature.properties)}</b><br>${METRICS[metric].label}: ${METRICS[metric].format(value)}`;
+}
+
+/* ------------------------------------------------------------------ *
+ * Peta: style polygon, label provinsi (point on surface), zoom rules
+ * ------------------------------------------------------------------ */
+
+const PROVINCE_ABBR = {
+  "DKI Jakarta": "DKI",
+  Banten: "BTN",
+  "Jawa Barat": "JBR",
+  "Jawa Tengah": "JTG",
+  "DI Yogyakarta": "DIY",
+  "Jawa Timur": "JTM",
+  Bali: "BALI",
+  "Nusa Tenggara Barat": "NTB",
+  "Nusa Tenggara Timur": "NTT",
+};
+
+const LABEL_MIN_VERTICES = 60;
+const LABEL_BIG_ZOOM_LE = 5;
+const LABEL_ABBR_ZOOM = 6;
+
+const labelState = {
+  items: [],
+  metric: null,
+  scale: null,
+};
+
+function provinceArea(feature) {
+  const cached = feature.__area;
+  if (Number.isFinite(cached)) return cached;
+  let total = 0;
+  const ringArea = (ring) => {
+    let sum = 0;
+    for (let i = 0, n = ring.length; i < n; i += 1) {
+      const [x1, y1] = ring[i];
+      const [x2, y2] = ring[(i + 1) % n];
+      sum += x1 * y2 - x2 * y1;
+    }
+    return Math.abs(sum / 2);
+  };
+  const walk = (coords) => {
+    if (!Array.isArray(coords) || !Array.isArray(coords[0])) return;
+    if (typeof coords[0][0] === "number") {
+      total += ringArea(coords);
+      return;
+    }
+    coords.forEach(walk);
+  };
+  walk(feature.geometry.coordinates);
+  feature.__area = total;
+  return total;
+}
+
+function countVertices(feature) {
+  if (Number.isFinite(feature.__vertices)) return feature.__vertices;
+  let total = 0;
+  const walk = (coords) => {
+    if (!Array.isArray(coords) || !Array.isArray(coords[0])) return;
+    if (typeof coords[0][0] === "number") {
+      total += coords.length;
+      return;
+    }
+    coords.forEach(walk);
+  };
+  walk(feature.geometry.coordinates);
+  feature.__vertices = total;
+  return total;
+}
+
+/**
+ * Ambil nama provinsi dari properti GeoJSON dengan toleransi kapitalisasi
+ * (PROVINSI / Provinsi / provinsi / name / NAMA), lalu normalisasi.
+ */
+function provinceNameOf(properties) {
+  if (!properties) return "";
+  const keys = ["PROVINSI", "Provinsi", "provinsi", "PROVINCE", "Province", "name", "NAME", "Name", "NAMA", "nama"];
+  let raw = "";
+  for (const key of keys) {
+    const value = properties[key];
+    if (typeof value === "string" && value.trim()) {
+      raw = value.trim();
+      break;
+    }
+  }
+  const cleaned = raw.replace(/\s+/g, " ").trim();
+  const upper = cleaned.toUpperCase();
+  if (upper === "DKI JAKARTA" || upper === "DAERAH KHUSUS IBUKOTA JAKARTA") return "DKI Jakarta";
+  if (upper === "DI YOGYAKARTA" || upper === "D.I. YOGYAKARTA" || upper === "DAERAH ISTIMEWA YOGYAKARTA") {
+    return "DI Yogyakarta";
+  }
+  if (upper === "BANGKA BELITUNG" || upper === "KEPULAUAN BANGKA BELITUNG") return "Kepulauan Bangka Belitung";
+  return cleaned;
+}
+
+function abbreviationFor(name) {
+  const labelled = name.startsWith("Kepulauan ") ? name.slice("Kepulauan ".length) : name;
+  return PROVINCE_ABBR[name] || PROVINCE_ABBR[labelled] || labelled;
+}
+
+/** Implementasi turf.pointOnFeature (polylabel) tanpa dependency eksternal. */
+function turfPointOnFeature(feature) {
+  const geom = feature.geometry;
+  if (!geom) return null;
+  let polygons = [];
+  if (geom.type === "Polygon") polygons = [geom.coordinates];
+  else if (geom.type === "MultiPolygon") polygons = geom.coordinates;
+  if (!polygons.length) return null;
+
+  let best = null;
+  polygons.forEach((rings) => {
+    if (!rings.length) return;
+    const cell = polylabel(rings, 1e-4);
+    if (!best || cell.d > best.d) best = cell;
+  });
+  if (!best) return null;
+  return L.latLng(best.y, best.x);
+}
+
+function polylabel(rings, precision = 1e-4) {
+  const outer = rings[0];
+  const holes = rings.slice(1);
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  outer.forEach(([x, y]) => {
+    if (x < minX) minX = x;
+    if (y < minY) minY = y;
+    if (x > maxX) maxX = x;
+    if (y > maxY) maxY = y;
+  });
+  const width = maxX - minX;
+  const height = maxY - minY;
+  if (!Number.isFinite(width) || !Number.isFinite(height) || (width === 0 && height === 0)) {
+    return { x: minX, y: minY, d: 0 };
+  }
+
+  const pointToPolygonDist = (x, y) => {
+    let inside = false;
+    let dist = Infinity;
+    const all = [outer, ...holes];
+    all.forEach((ring) => {
+      for (let i = 0, len = ring.length, j = len - 1; i < len; j = i, i += 1) {
+        const a = ring[i];
+        const b = ring[j];
+        if ((a[1] > y) !== (b[1] > y) && x < ((b[0] - a[0]) * (y - a[1])) / (b[1] - a[1]) + a[0]) {
+          inside = !inside;
+        }
+        dist = Math.min(dist, segmentDistance(x, y, a[0], a[1], b[0], b[1]));
+      }
+    });
+    return (inside ? 1 : -1) * Math.sqrt(dist);
+  };
+
+  const cellSize = Math.min(width, height);
+  if (!(cellSize > 0)) return { x: minX, y: minY, d: 0 };
+  let h = cellSize / 2;
+
+  const queue = [];
+  const bboxCenter = [(minX + maxX) / 2, (minY + maxY) / 2];
+  const bboxCell = {
+    x: bboxCenter[0] - h,
+    y: bboxCenter[1] - h,
+    h,
+    d: pointToPolygonDist(bboxCenter[0], bboxCenter[1]),
+    max: 0,
+  };
+  bboxCell.max = bboxCell.d + bboxCell.h * Math.SQRT2;
+
+  const compare = (a, b) => b.max - a.max;
+  const push = (cell) => {
+    let low = 0;
+    let high = queue.length;
+    while (low < high) {
+      const mid = (low + high) >> 1;
+      if (compare(cell, queue[mid]) < 0) low = mid + 1;
+      else high = mid;
+    }
+    queue.splice(low, 0, cell);
+  };
+
+  for (let x = minX; x < maxX; x += cellSize) {
+    for (let y = minY; y < maxY; y += cellSize) {
+      const cell = { x: x + h, y: y + h, h, d: pointToPolygonDist(x + h, y + h), max: 0 };
+      cell.max = cell.d + cell.h * Math.SQRT2;
+      push(cell);
+    }
+  }
+  push(bboxCell);
+
+  let bestCell = bboxCell;
+  while (queue.length) {
+    const cell = queue.shift(); // eslint-disable-line no-await-in-loop
+    if (cell.d > bestCell.d) bestCell = cell;
+    if (cell.max - bestCell.d <= precision) continue;
+    h = cell.h / 2;
+    [
+      [cell.x - h, cell.y - h],
+      [cell.x + h, cell.y - h],
+      [cell.x - h, cell.y + h],
+      [cell.x + h, cell.y + h],
+    ].forEach(([cx, cy]) => {
+      const next = { x: cx, y: cy, h, d: pointToPolygonDist(cx, cy), max: 0 };
+      next.max = next.d + next.h * Math.SQRT2;
+      push(next);
+    });
+  }
+  return bestCell;
+}
+
+function segmentDistance(px, py, ax, ay, bx, by) {
+  let x = ax;
+  let y = ay;
+  let dx = bx - ax;
+  let dy = by - ay;
+  if (dx !== 0 || dy !== 0) {
+    const t = ((px - x) * dx + (py - y) * dy) / (dx * dx + dy * dy);
+    if (t > 1) {
+      x = bx;
+      y = by;
+    } else if (t > 0) {
+      x += dx * t;
+      y += dy * t;
+    }
+  }
+  dx = px - x;
+  dy = py - y;
+  return dx * dx + dy * dy;
+}
+
+function buildLabelIndex() {
+  labelState.items = geojsonLayer
+    .getLayers()
+    .map((layer) => {
+      const feature = layer.feature;
+      const full = provinceNameOf(feature.properties);
+      const pinLatLng = turfPointOnFeature(feature);
+      if (!pinLatLng) return null;
+      return {
+        full,
+        abbr: abbreviationFor(full),
+        big: countVertices(feature) >= LABEL_MIN_VERTICES,
+        area: provinceArea(feature),
+        pinLatLng,
+        layer,
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => b.area - a.area);
+}
+
+/** Label utama tiap provinsi (dipakai untuk cek overlap antar provinsi). */
+function mainTooltip(item) {
+  if (!item.mainTip) {
+    item.mainTip = L.tooltip({
+      permanent: true,
+      direction: "center",
+      className: "prov-label",
+      interactive: false,
+      keyboard: false,
+      opacity: 1,
+    });
+    item.mainTip.setLatLng(item.pinLatLng);
+  }
+  return item.mainTip;
+}
+
+function setLabelText(tip, text, light, small) {
+  const classes = ["prov-label"];
+  if (light) classes.push("prov-label--light");
+  if (small) classes.push("prov-label--small");
+  tip.setContent(`<span>${text}</span>`);
+  const el = tip.getElement();
+  if (el) {
+    el.className = `leaflet-tooltip ${classes.join(" ")}`;
+  }
+}
+
+function renderProvinceLabels() {
+  const zoom = map.getZoom();
+  const mode = zoom <= LABEL_BIG_ZOOM_LE ? "big" : zoom <= LABEL_ABBR_ZOOM ? "abbr" : "full";
+  const metric = labelState.metric;
+  const scale = labelState.scale;
+
+  // matikan semua label dulu
+  labelState.items.forEach((item) => {
+    if (item.mainTip) item.mainTip.remove();
+  });
+
+  const accepted = [];
+  labelState.items.forEach((item) => {
+    if (mode === "big" && !item.big) return;
+    const text = mode === "big" ? item.full : mode === "abbr" ? item.abbr : item.full;
+    const value = item.layer.feature.properties[metric];
+    const classIndex = scale ? classIndexFor(value, scale) : 0;
+    const light = classIndex >= MAP_LIGHT_TEXT_FROM_CLASS;
+    const small = mode === "big";
+
+    const tip = mainTooltip(item);
+    setLabelText(tip, text, light, small);
+    tip.addTo(map);
+
+    const el = tip.getElement();
+    const widthPx = el ? el.offsetWidth || text.length * 6 : text.length * 6;
+    const heightPx = el ? el.offsetHeight || 14 : 14;
+    const point = map.project(item.pinLatLng, zoom);
+    const box = {
+      left: point.x - widthPx / 2 - 2,
+      right: point.x + widthPx / 2 + 2,
+      top: point.y - heightPx / 2 - 1,
+      bottom: point.y + heightPx / 2 + 1,
+    };
+    const overlap = accepted.some(
+      (other) => box.left < other.right && box.right > other.left && box.top < other.bottom && box.bottom > other.top
+    );
+    if (overlap) {
+      tip.remove();
+      return;
+    }
+    accepted.push(box);
+  });
+}
+
+function refreshLabelStyles() {
+  const metric = labelState.metric;
+  const scale = labelState.scale;
+  if (!metric || !scale) return;
+  labelState.items.forEach((item) => {
+    if (!item.mainTip || !map.hasLayer(item.mainTip)) return;
+    const value = item.layer.feature.properties[metric];
+    const light = classIndexFor(value, scale) >= MAP_LIGHT_TEXT_FROM_CLASS;
+    const el = item.mainTip.getElement();
+    if (!el) return;
+    el.classList.toggle("prov-label--light", light);
+  });
+}
+
+/**
+ * Batas Indonesia versi rapat (Sabang sampai Merauke) supaya Indonesia
+ * mengisi container tanpa menyisakan laut kosong besar.
+ */
+const INDONESIA_FIT_BOUNDS = L.latLngBounds([-11.05, 95.0], [6.0, 141.05]);
+const JAVA_FIT_BOUNDS = L.latLngBounds([-9.0, 105.2], [-5.7, 114.6]);
+
+let pendingFit = null; // permintaan fitBounds yang ditunda sampai layout stabil
+
+/**
+ * Fit bounds ke container (padding seragam [10, 10] pada sumbu pembatas).
+ * Leaflet menyisakan ruang kosong di sumbu lain saat snap ke level zoom,
+ * jadi bounds dilebarkan di sumbu tersebut sampai peta memenuhi container.
+ */
+function fitMapToBounds(bounds, options = {}) {
+  if (!map.getSize().x) {
+    pendingFit = [bounds, options];
+    return;
+  }
+  map.invalidateSize({ animate: false });
+  const pad = 10;
+  const size = map.getSize();
+  let zoom = map.getBoundsZoom(bounds, false, L.point(pad, pad));
+  if (options.maxZoom) zoom = Math.min(zoom, options.maxZoom);
+
+  // px ukuran bounds pada zoom target dan ruang yang tersedia
+  const nw = map.project(bounds.getNorthWest(), zoom);
+  const se = map.project(bounds.getSouthEast(), zoom);
+  const bw = Math.max(se.x - nw.x, 1);
+  const bh = Math.max(se.y - nw.y, 1);
+  const availW = Math.max(size.x - pad * 2, 1);
+  const availH = Math.max(size.y - pad * 2, 1);
+
+  let extraX = 0;
+  let extraY = 0;
+  if (bw / bh > availW / availH) {
+    // sumbu horizontal yang membatasi -> lebarkan vertikal agar penuh
+    extraY = (bh * (availW / bw) - bh) / 2;
+  } else {
+    extraX = (bw * (availH / bh) - bw) / 2;
+  }
+
+  const center = L.point((nw.x + se.x) / 2, (nw.y + se.y) / 2);
+  const halfW = bw / 2 + extraX;
+  const halfH = bh / 2 + extraY;
+  const expanded = L.latLngBounds(
+    map.unproject([center.x - halfW, center.y + halfH], zoom), // south-west
+    map.unproject([center.x + halfW, center.y - halfH], zoom) // north-east
+  );
+
+  map.fitBounds(expanded, { padding: [pad, pad], animate: false, maxZoom: zoom });
+}
+
+function resetMapView() {
+  fitMapToBounds(INDONESIA_FIT_BOUNDS);
+}
+
+function focusJava() {
+  fitMapToBounds(JAVA_FIT_BOUNDS, { maxZoom: 7 });
 }
 
 function updateMap() {
   const metric = document.getElementById("metricSelect").value;
   const config = METRICS[metric];
   const scale = getScale(metric);
+  labelState.metric = metric;
+  labelState.scale = scale;
 
   geojsonLayer.eachLayer((layer) => {
     const feature = layer.feature;
-    const selected = feature.properties.name === selectedProvince;
+    const selected = provinceNameOf(feature.properties) === selectedProvince;
     layer.setStyle({
       fillColor: colorFor(feature.properties[metric], scale),
-      fillOpacity: 0.88,
-      color: selected ? "#0b3d42" : "#ffffff",
-      weight: selected ? 2.2 : 0.65,
+      fillOpacity: 0.95,
+      color: selected ? "#f59e0b" : "#ffffff",
+      weight: selected ? 3 : 1.2,
     });
-    layer.off("mouseover");
-    layer.on("mouseover", () => layer.setTooltipContent(metricTooltip(feature, metric)));
+    // JANGAN pakai layer.off("mouseover") di sini: itu ikut menghapus handler
+    // internal Leaflet yang membuka tooltip. Isi tooltip sudah di-refresh oleh
+    // handler permanen di onEachFeature (memakai metric terbaru).
   });
 
-  document.getElementById("legendTitle").textContent = config.label;
   document.getElementById("mapLegend").innerHTML = scale.breaks
     .slice(0, -1)
     .map((start, index) => {
       const end = scale.breaks[index + 1];
-      return `<span class="legend-item"><i class="legend-swatch" style="background:${scale.palette[index]}"></i>${config.format(start)}–${config.format(end)}</span>`;
+      return `<span class="legend-item"><i class="legend-swatch" style="background:${scale.palette[index]};border:1px solid #0b3d35"></i>${config.format(start)}–${config.format(end)}</span>`;
     })
     .join("");
+
+  renderProvinceLabels();
+  refreshLabelStyles();
+
+  if (pendingFit) {
+    fitMapToBounds(...pendingFit);
+    pendingFit = null;
+  }
 }
 
 function initMap() {
@@ -261,32 +679,60 @@ function initMap() {
     attributionControl: false,
     scrollWheelZoom: false,
     minZoom: 3,
+    maxBoundsViscosity: 0.4,
   });
-  map.setView([-2.4, 118], 4.4);
 
   geojsonLayer = L.geoJSON(GEOJSON, {
     style: (feature) => {
       const metric = document.getElementById("metricSelect").value;
       const scale = getScale(metric);
-      const selected = feature.properties.name === selectedProvince;
+      const selected = provinceNameOf(feature.properties) === selectedProvince;
       return {
         fillColor: colorFor(feature.properties[metric], scale),
-        fillOpacity: 0.88,
-        color: selected ? "#0b3d42" : "#ffffff",
-        weight: selected ? 2.2 : 0.65,
+        fillOpacity: 0.95,
+        color: selected ? "#f59e0b" : "#ffffff",
+        weight: selected ? 3 : 1.2,
       };
     },
     onEachFeature: (feature, layer) => {
-      layersByName.set(feature.properties.name, layer);
-      layer.bindTooltip("", { sticky: true, direction: "top", opacity: 1 });
+      const name = provinceNameOf(feature.properties);
+      layersByName.set(name, layer);
+      layer.bindTooltip(metricTooltip(feature, document.getElementById("metricSelect").value), {
+        sticky: true,
+        direction: "top",
+        opacity: 1,
+        className: "prov-hover-tip",
+      });
       layer.on("mouseover", () => {
         layer.setTooltipContent(metricTooltip(feature, document.getElementById("metricSelect").value));
+        layer.setStyle({ weight: 3, color: "#0b3d35" });
+        layer.bringToFront();
       });
-      layer.on("click", () => selectProvince(feature.properties.name, true));
+      layer.on("mouseout", () => {
+        const metric = document.getElementById("metricSelect").value;
+        const selected = name === selectedProvince;
+        geojsonLayer.resetStyle(layer);
+        layer.setStyle({
+          fillColor: colorFor(feature.properties[metric], labelState.scale || getScale(metric)),
+          fillOpacity: 0.95,
+          color: selected ? "#f59e0b" : "#ffffff",
+          weight: selected ? 3 : 1.2,
+        });
+      });
+      layer.on("click", () => selectProvince(name, true));
     },
   }).addTo(map);
 
-  map.fitBounds(geojsonLayer.getBounds(), { padding: [14, 14] });
+  buildLabelIndex();
+  resetMapView();
+  map.on("zoomend", () => {
+    if (labelState.items.length) renderProvinceLabels();
+  });
+  map.whenReady(() => {
+    map.invalidateSize();
+    resetMapView();
+    renderProvinceLabels();
+  });
   updateMap();
 }
 
@@ -673,7 +1119,7 @@ function selectProvince(name, zoom = false) {
   updateSelectionUi();
 
   if (selectedProvince === "all") {
-    map.fitBounds(geojsonLayer.getBounds(), { padding: [14, 14] });
+    resetMapView();
     return;
   }
 
@@ -775,6 +1221,8 @@ function initEvents() {
     selectProvince(event.target.value, event.target.value !== "all");
   });
   document.getElementById("metricSelect").addEventListener("change", updateMap);
+  document.getElementById("mapResetView").addEventListener("click", resetMapView);
+  document.getElementById("mapFocusJava").addEventListener("click", focusJava);
   document.getElementById("rankingMetric").addEventListener("change", buildRankingChart);
   document.getElementById("rankingDirection").addEventListener("change", buildRankingChart);
   document.getElementById("priorityFilter").addEventListener("change", renderTable);
@@ -786,6 +1234,8 @@ function initEvents() {
 
 fillSelect();
 initMap();
+window.dashboardMap = map;
+window.dashboardGeojson = geojsonLayer;
 initEvents();
 initNav();
 updateSelectionUi();
