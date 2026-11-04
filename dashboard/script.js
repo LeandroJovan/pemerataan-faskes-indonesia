@@ -151,7 +151,7 @@ function updateKpis() {
     : province["Jumlah Desa"] * province.desa_pkm_pct / 100;
   const villagesSub = isAll
     ? `${nf2.format(national.pct_desa_dengan_pkm)}% dari ${nf0.format(national.desa)} desa`
-    : `${percentOrDash(province.desa_pkm_pct)} desa memiliki puskesmas`;
+    : `${percentOrDash(province.desa_pkm_pct)} (${Math.round(province["Jumlah Desa"] * province.desa_pkm_pct / 100)} dari ${nf0.format(province["Jumlah Desa"])} desa)`;
   const standard = isAll ? `${national.provinsi_memenuhi_std} / ${national.provinsi}` : province.status_std;
   const standardSub = isAll
     ? "provinsi memenuhi standar"
